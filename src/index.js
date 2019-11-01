@@ -1,5 +1,6 @@
 const noop = () => {};
 const compose = (f, g) => d => f(g(d));
+const always = d => () => d;
 const and = (f, g) => d => f(d) && g(d);
 const or = (f, g) => d => f(d) || g(d);
 const tap = f => d => (f(d) || true) && d;
@@ -190,6 +191,82 @@ class While {
   }
 }
 
+class Chain {
+  constructor(source, fns) {
+    this.source = source;
+    this.fns = fns;
+  }
+
+  static of(source, fns) {
+    return source instanceof Chain
+      ? source.wrap(fns)
+      : new Chain(source.extract(), fns);
+  }
+
+  wrap(fns) {
+    return new Chain(this.source, [...this.fns, ...fns]);
+  }
+
+  extract() {
+    // TO DO clean up propagation
+    return sink => {
+      let teardowns = [];
+      let index = 0;
+
+      const complete = curr => () => {
+        // console.log(curr);
+        index--;
+        if (curr === 0) teardowns[0] && teardowns[0]();
+        teardowns[curr] = null;
+        if (index < 0) sink.complete();
+      };
+
+      const error = sink.error;
+
+      const recursiveNext = current => {
+        const fn = this.fns[current];
+        return data => {
+          const stream = fn(data);
+
+          const next =
+            current >= this.fns.length - 1
+              ? sink.next
+              : recursiveNext(current + 1);
+
+          index++;
+          const control = stream.producer.start({
+            complete: complete(index),
+            error,
+            next
+          });
+          teardowns[index] = control.stop;
+        };
+      };
+
+      const control = this.source({
+        ...sink,
+        complete: complete(index),
+        error,
+        next: recursiveNext(index)
+      });
+
+      if (teardowns[index] === undefined) teardowns[index] = control.stop;
+
+      return {
+        ...control,
+        stop: () => {
+          for (let index = 0; index < teardowns.length; index++) {
+            const teardown = teardowns[index];
+            teardown && teardown();
+          }
+          teardowns = [];
+          index = 0;
+        }
+      };
+    };
+  }
+}
+
 class Producer {
   constructor(source) {
     this.source = source;
@@ -215,12 +292,16 @@ class Producer {
     return new Producer(While.of(this.source, fn));
   }
 
+  chain(fns) {
+    return new Producer(Chain.of(this.source, fns));
+  }
+
   start(sink) {
     return run(this.source.extract(), sink);
   }
 }
 
-export default class Stream {
+class Stream {
   constructor(producer) {
     this.producer =
       producer instanceof Producer ? producer : Producer.of(producer);
@@ -290,6 +371,14 @@ export default class Stream {
     return new Stream(this.producer.filter(d => !fn(d)));
   }
 
+  join() {
+    return new Stream(this.producer.chain(always(this)));
+  }
+
+  chain(...fns) {
+    return new Stream(this.producer.chain(fns));
+  }
+
   start(sink) {
     const destination = {
       next: noop,
@@ -307,3 +396,5 @@ export default class Stream {
     return this.producer.start(destination);
   }
 }
+
+module.exports = Stream;

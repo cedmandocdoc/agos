@@ -1,16 +1,15 @@
 const Stream = require("../dist/agos.cjs");
 
-const createInterval = (duration, complete = Infinity) => {
-  let id;
-  const stop = jest.fn().mockImplementation(() => clearInterval(id));
+const createInterval = (duration, take = Infinity) => {
+  const stop = jest.fn(id => clearInterval(id));
 
   const stream = new Stream(sink => {
     let count = 0;
-    id = setInterval(() => {
+    const id = setInterval(() => {
       sink.next(++count);
-      if (count >= complete) sink.complete();
+      if (count >= take) sink.complete();
     }, duration);
-    return { stop };
+    return { stop: () => stop(id) };
   });
 
   return [stream, stop];

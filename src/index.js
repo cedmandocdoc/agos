@@ -434,6 +434,10 @@ class Producer {
     return new Producer(While.of(this.source, fn));
   }
 
+  pipe(fn) {
+    return new Producer(Pipe.of(this.source, fn));
+  }
+
   chain(fns) {
     return new Producer(Chain.of(this.source, fns));
   }
@@ -539,6 +543,38 @@ class Stream {
 
   skipWhile(fn) {
     return new Stream(this.producer.filter(d => !fn(d)));
+  }
+
+  scan(fn, seed) {
+    return new Stream(
+      this.producer.pipe(sink => ({
+        ...sink,
+        next: d => {
+          seed = fn(seed, d);
+          sink.next(seed);
+        }
+      }))
+    );
+  }
+
+  last() {
+    return new Stream(
+      this.producer.pipe(sink => {
+        let value;
+        let seen = false;
+        return {
+          ...sink,
+          next: data => {
+            if (!seen) seen = true;
+            value = data;
+          },
+          complete: () => {
+            if (seen) sink.next(value);
+            sink.complete();
+          }
+        };
+      })
+    );
   }
 
   join() {

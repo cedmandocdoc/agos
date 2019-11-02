@@ -1,4 +1,4 @@
-const { createInterval, throwError } = require("./utils");
+const { interval } = require("./utils");
 
 jest.useFakeTimers();
 
@@ -11,7 +11,7 @@ describe("filter", () => {
     const error = jest.fn();
     const filter = jest.fn(data => data < 3);
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.filter(filter).start({
       next,
@@ -35,9 +35,11 @@ describe("filter", () => {
     const next = jest.fn();
     const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
-    const filter = jest.fn(throwError(err));
+    const filter = jest.fn(() => {
+      throw err;
+    });
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.filter(filter).start({
       next,
@@ -66,7 +68,7 @@ describe("filter", () => {
       return data <= 3;
     });
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.filter(filter).start({
       next,

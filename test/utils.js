@@ -1,6 +1,6 @@
 const Stream = require("../dist/agos.cjs");
 
-const createInterval = (duration, take = Infinity) => {
+const interval = (duration, take = Infinity) => {
   const stop = jest.fn(id => clearInterval(id));
 
   const stream = new Stream(sink => {
@@ -15,16 +15,5 @@ const createInterval = (duration, take = Infinity) => {
   return [stream, stop];
 };
 
-const stopInterval = (duration, stop) =>
-  setTimeout(() => {
-    stop();
-  }, duration);
-
-const throwError = error => () => {
-  throw error;
-};
-
 exports.Stream = Stream;
-exports.createInterval = createInterval;
-exports.stopInterval = stopInterval;
-exports.throwError = throwError;
+exports.interval = interval;

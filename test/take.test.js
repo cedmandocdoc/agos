@@ -1,4 +1,4 @@
-const { createInterval } = require("./utils");
+const { interval } = require("./utils");
 
 jest.useFakeTimers();
 
@@ -10,7 +10,7 @@ describe("take", () => {
     const complete = jest.fn();
     const error = jest.fn();
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.take(1).start({
       next,

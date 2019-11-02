@@ -1,4 +1,4 @@
-const { createInterval, throwError } = require("./utils");
+const { interval } = require("./utils");
 
 jest.useFakeTimers();
 
@@ -11,7 +11,7 @@ describe("skipWhile", () => {
     const error = jest.fn();
     const skipWhile = jest.fn(data => data === 1);
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.skipWhile(skipWhile).start({
       next,
@@ -35,9 +35,11 @@ describe("skipWhile", () => {
     const next = jest.fn();
     const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
-    const skipWhile = jest.fn(throwError(err));
+    const skipWhile = jest.fn(() => {
+      throw err;
+    });
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.skipWhile(skipWhile).start({
       next,
@@ -66,7 +68,7 @@ describe("skipWhile", () => {
       return data === 1;
     });
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.skipWhile(skipWhile).start({
       next,

@@ -1,4 +1,4 @@
-const { createInterval, throwError } = require("./utils");
+const { interval } = require("./utils");
 
 jest.useFakeTimers();
 
@@ -10,8 +10,8 @@ describe("chain", () => {
     const complete = jest.fn();
     const error = jest.fn();
 
-    const [base, baseStop] = createInterval(100, 1);
-    const [chain1, chain1Stop] = createInterval(200, 1);
+    const [base, baseStop] = interval(100, 1);
+    const [chain1, chain1Stop] = interval(200, 1);
 
     base
       .chain(() => chain1)
@@ -38,8 +38,8 @@ describe("chain", () => {
     const complete = jest.fn();
     const error = jest.fn();
 
-    const [base, baseStop] = createInterval(100, 1);
-    const [chain1, chain1Stop] = createInterval(200, 2);
+    const [base, baseStop] = interval(100, 1);
+    const [chain1, chain1Stop] = interval(200, 2);
 
     base
       .chain(() => chain1)
@@ -66,9 +66,9 @@ describe("chain", () => {
     const complete = jest.fn();
     const error = jest.fn();
 
-    const [base, baseStop] = createInterval(100, 1);
-    const [chain1, chain1Stop] = createInterval(200, 1);
-    const [chain2, chain2Stop] = createInterval(300, 1);
+    const [base, baseStop] = interval(100, 1);
+    const [chain1, chain1Stop] = interval(200, 1);
+    const [chain2, chain2Stop] = interval(300, 1);
 
     base
       .chain(() => chain1)
@@ -97,9 +97,9 @@ describe("chain", () => {
     const complete = jest.fn();
     const error = jest.fn();
 
-    const [base, baseStop] = createInterval(100, 1);
-    const [chain1, chain1Stop] = createInterval(200, 2);
-    const [chain2, chain2Stop] = createInterval(300, 3);
+    const [base, baseStop] = interval(100, 1);
+    const [chain1, chain1Stop] = interval(200, 2);
+    const [chain2, chain2Stop] = interval(300, 3);
 
     base
       .chain(() => chain1)
@@ -131,9 +131,9 @@ describe("chain", () => {
       throw err;
     });
 
-    const [base, baseStop] = createInterval(100, 1);
-    const [chain1, chain1Stop] = createInterval(200, 1);
-    const [chain2, chain2Stop] = createInterval(300, 1);
+    const [base, baseStop] = interval(100, 1);
+    const [chain1, chain1Stop] = interval(200, 1);
+    const [chain2, chain2Stop] = interval(300, 1);
 
     base
       .chain(() => chain1)
@@ -163,14 +163,18 @@ describe("chain", () => {
     const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
 
-    const [base, baseStop] = createInterval(100, 1);
-    const [chain1, chain1Stop] = createInterval(200, 1);
-    const [chain2, chain2Stop] = createInterval(300, 1);
-    const [chain3, chain3Stop] = createInterval(300, 1);
+    const [base, baseStop] = interval(100, 1);
+    const [chain1, chain1Stop] = interval(200, 1);
+    const [chain2, chain2Stop] = interval(300, 1);
+    const [chain3, chain3Stop] = interval(300, 1);
 
     base
       .chain(() => chain1)
-      .chain(() => chain2.map(throwError(err)))
+      .chain(() =>
+        chain2.map(() => {
+          throw err;
+        })
+      )
       .chain(() => chain3)
       .start({
         next,

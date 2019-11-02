@@ -1,4 +1,4 @@
-const { createInterval, throwError } = require("./utils");
+const { interval } = require("./utils");
 
 jest.useFakeTimers();
 
@@ -11,7 +11,7 @@ describe("tap", () => {
     const error = jest.fn();
     const tap = jest.fn();
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.tap(tap).start({
       next,
@@ -35,9 +35,11 @@ describe("tap", () => {
     const next = jest.fn();
     const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
-    const tap = jest.fn(throwError(err));
+    const tap = jest.fn(() => {
+      throw err;
+    });
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.tap(tap).start({
       next,
@@ -65,7 +67,7 @@ describe("tap", () => {
       if (data === 2) throw err;
     });
 
-    const [base, baseStop] = createInterval(100, 3);
+    const [base, baseStop] = interval(100, 3);
 
     base.tap(tap).start({
       next,

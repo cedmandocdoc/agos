@@ -1,4 +1,4 @@
-const { Stream, createInterval, throwError } = require("./utils");
+const { Stream, interval } = require("./utils");
 
 jest.useFakeTimers();
 
@@ -10,8 +10,8 @@ describe("merge", () => {
     const complete = jest.fn();
     const error = jest.fn();
 
-    const [interval1, interval1Stop] = createInterval(100, 3);
-    const [interval2, interval2Stop] = createInterval(200, 2);
+    const [interval1, interval1Stop] = interval(100, 3);
+    const [interval2, interval2Stop] = interval(200, 2);
 
     Stream.merge([interval1, interval2]).start({
       next,
@@ -37,10 +37,15 @@ describe("merge", () => {
     const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
 
-    const [interval1, interval1Stop] = createInterval(100, 3);
-    const [interval2, interval2Stop] = createInterval(200, 2);
+    const [interval1, interval1Stop] = interval(100, 3);
+    const [interval2, interval2Stop] = interval(200, 2);
 
-    Stream.merge([interval1, interval2.map(throwError(err))]).start({
+    Stream.merge([
+      interval1,
+      interval2.map(() => {
+        throw err;
+      })
+    ]).start({
       next,
       complete,
       error

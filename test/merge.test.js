@@ -4,9 +4,9 @@ jest.useFakeTimers();
 
 describe("merge", () => {
   it("should propagate data from all values of the streams", () => {
-    const received = [];
+    const expected = [1, 2, 1, 3, 2];
 
-    const next = jest.fn(data => received.push(data));
+    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
     const complete = jest.fn();
     const error = jest.fn();
 
@@ -24,16 +24,15 @@ describe("merge", () => {
     expect(next).toHaveBeenCalledTimes(5);
     expect(complete).toHaveBeenCalledTimes(1);
     expect(error).toHaveBeenCalledTimes(0);
-    expect(received).toEqual([1, 2, 1, 3, 2]);
     expect(interval1Stop).toHaveBeenCalledTimes(1);
     expect(interval2Stop).toHaveBeenCalledTimes(1);
   });
 
   it("should propagate error when one stream propagates an error", () => {
     const err = new Error();
-    const received = [];
+    const expected = [1, 2];
 
-    const next = jest.fn(data => received.push(data));
+    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
     const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
 
@@ -56,7 +55,6 @@ describe("merge", () => {
     expect(next).toHaveBeenCalledTimes(2);
     expect(complete).toHaveBeenCalledTimes(0);
     expect(error).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([1, 2]);
     expect(interval1Stop).toHaveBeenCalledTimes(1);
     expect(interval2Stop).toHaveBeenCalledTimes(1);
   });

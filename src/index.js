@@ -304,8 +304,8 @@ class Merge {
 
   static of(source, streams) {
     return source instanceof Merge
-      ? source.wrap([new Stream(new Producer(source)), ...streams])
-      : new Merge(source.extract(), streams);
+      ? source.wrap(streams)
+      : new Merge(new Stream(new Producer(source)), streams);
   }
 
   wrap(streams) {

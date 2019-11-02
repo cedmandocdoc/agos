@@ -2,7 +2,7 @@ const { Stream, interval } = require("./utils");
 
 jest.useFakeTimers();
 
-describe("merge", () => {
+describe("mergeLatest", () => {
   it("should propagate data from latest values of the streams", () => {
     const expected = [[2, 1], [3, 1], [3, 2]];
 

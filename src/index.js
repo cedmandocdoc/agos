@@ -191,6 +191,36 @@ class While {
   }
 }
 
+class Pipe {
+  constructor(source, pipe) {
+    this.source = source;
+    this.pipe = pipe;
+  }
+
+  static of(source, pipe) {
+    return source instanceof Pipe
+      ? source.wrap(pipe)
+      : new Pipe(source.extract(), pipe);
+  }
+
+  wrap(pipe) {
+    return new Pipe(
+      this.source,
+      compose(
+        pipe,
+        this.pipe
+      )
+    );
+  }
+
+  extract() {
+    return compose(
+      this.source,
+      this.pipe
+    );
+  }
+}
+
 class Chain {
   constructor(source, fns) {
     this.source = source;
@@ -263,6 +293,60 @@ class Chain {
           index = 0;
         }
       };
+    };
+  }
+}
+
+class Merge {
+  constructor(streams) {
+    this.streams = streams;
+  }
+
+  static of(source, streams) {
+    return source instanceof Merge
+      ? source.wrap([new Stream(new Producer(source)), ...streams])
+      : new Merge(source.extract(), streams);
+  }
+
+  wrap(streams) {
+    return new Merge([...this.streams, ...streams]);
+  }
+
+  extract() {
+    return sink => {
+      const streams = this.streams;
+      let pending = streams.length;
+      const teardowns = [];
+
+      const stop = () => {
+        for (let index = 0; index < teardowns.length; index++) {
+          const teardown = teardowns[index];
+          teardown();
+        }
+      };
+
+      const complete = index => () => {
+        pending--;
+        teardowns[index] = () => {};
+        if (pending <= 0) sink.complete();
+      };
+
+      const error = index => e => {
+        teardowns[index] = () => {};
+        sink.error(e);
+      };
+
+      for (let index = 0; index < streams.length; index++) {
+        const stream = streams[index];
+        const control = stream.producer.start({
+          next: data => sink.next(data, index),
+          complete: complete(index),
+          error: error(index)
+        });
+        teardowns.push(control.stop);
+      }
+
+      return { stop };
     };
   }
 }
@@ -340,40 +424,26 @@ class Stream {
   }
 
   static merge(streams) {
-    return new Stream(sink => {
-      let pending = streams.length;
-      const teardowns = [];
+    const source = new Merge(streams).extract();
+    return new Stream(source);
+  }
 
-      const stop = () => {
-        for (let index = 0; index < teardowns.length; index++) {
-          const teardown = teardowns[index];
-          teardown();
-        }
+  static mergeLatest(streams) {
+    const source = new Pipe(new Merge(streams).extract(), sink => {
+      const seen = [];
+      const values = streams.map(() => null);
+
+      const next = (data, index) => {
+        values[index] = data; // mutates the current data
+        if (!seen[index]) seen[index] = true;
+        if (seen.length === streams.length) sink.next(values);
       };
-
-      const complete = index => () => {
-        pending--;
-        teardowns[index] = () => {};
-        if (pending <= 0) sink.complete();
+      return {
+        ...sink,
+        next
       };
-
-      const error = index => e => {
-        teardowns[index] = () => {};
-        sink.error(e);
-      };
-
-      for (let index = 0; index < streams.length; index++) {
-        const stream = streams[index];
-        const control = stream.producer.start({
-          next: sink.next,
-          complete: complete(index),
-          error: error(index)
-        });
-        teardowns.push(control.stop);
-      }
-
-      return { stop };
-    });
+    }).extract();
+    return new Stream(source);
   }
 
   static never() {

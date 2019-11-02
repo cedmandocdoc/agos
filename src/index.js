@@ -351,6 +351,64 @@ class Merge {
   }
 }
 
+class Concat {
+  constructor(streams) {
+    this.streams = streams;
+  }
+
+  static of(source, streams) {
+    return source instanceof Concat
+      ? source.wrap(streams)
+      : new Concat([new Stream(new Producer(source)), ...streams]);
+  }
+
+  wrap(streams) {
+    return new Concat([...this.streams, ...streams]);
+  }
+
+  extract() {
+    return sink => {
+      const streams = this.streams;
+      const teardowns = [];
+      let current = 0;
+
+      const stop = () => {
+        for (let index = 0; index < teardowns.length; index++) {
+          const teardown = teardowns[index];
+          teardown();
+        }
+      };
+
+      const complete = () => {
+        teardowns[current] = noop;
+        current++;
+        if (current > streams.length - 1) sink.complete();
+        else run(current);
+      };
+
+      const error = err => {
+        teardowns[current] = noop;
+        sink.error(err);
+      };
+
+      const run = index => {
+        const stream = streams[index];
+        if (!stream) return;
+        const control = stream.producer.start({
+          next: sink.next,
+          complete,
+          error
+        });
+        if (teardowns[index] === undefined) teardowns[index] = control.stop;
+      };
+
+      run(current);
+
+      return { stop };
+    };
+  }
+}
+
 class Producer {
   constructor(source) {
     this.source = source;
@@ -447,6 +505,11 @@ class Stream {
         next
       };
     }).extract();
+    return new Stream(source);
+  }
+
+  static concat(streams) {
+    const source = new Concat(streams).extract();
     return new Stream(source);
   }
 

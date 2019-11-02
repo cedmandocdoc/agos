@@ -423,6 +423,10 @@ class Stream {
     });
   }
 
+  static never() {
+    return new Stream(() => ({ stop: noop }));
+  }
+
   static merge(streams) {
     const source = new Merge(streams).extract();
     return new Stream(source);
@@ -444,10 +448,6 @@ class Stream {
       };
     }).extract();
     return new Stream(source);
-  }
-
-  static never() {
-    return new Stream(() => ({ stop: noop }));
   }
 
   map(fn) {

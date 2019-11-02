@@ -339,6 +339,43 @@ class Stream {
     });
   }
 
+  static merge(streams) {
+    return new Stream(sink => {
+      let pending = streams.length;
+      const teardowns = [];
+
+      const stop = () => {
+        for (let index = 0; index < teardowns.length; index++) {
+          const teardown = teardowns[index];
+          teardown();
+        }
+      };
+
+      const complete = index => () => {
+        pending--;
+        teardowns[index] = () => {};
+        if (pending <= 0) sink.complete();
+      };
+
+      const error = index => e => {
+        teardowns[index] = () => {};
+        sink.error(e);
+      };
+
+      for (let index = 0; index < streams.length; index++) {
+        const stream = streams[index];
+        const control = stream.producer.start({
+          next: sink.next,
+          complete: complete(index),
+          error: error(index)
+        });
+        teardowns.push(control.stop);
+      }
+
+      return { stop };
+    });
+  }
+
   static never() {
     return new Stream(() => ({ stop: noop }));
   }

@@ -1,6 +1,6 @@
 const { Stream } = require("./utils");
 
-describe("throw", () => {
+describe("fail", () => {
   it("should propagate error", () => {
     const err = new Error();
 
@@ -8,7 +8,7 @@ describe("throw", () => {
     const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
 
-    Stream.throw(err).start({
+    Stream.fail(err).start({
       next,
       complete,
       error

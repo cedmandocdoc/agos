@@ -152,7 +152,7 @@ describe("chain", () => {
     expect(error).toHaveBeenCalledTimes(1);
     expect(chain).toHaveBeenCalledTimes(1);
     expect(baseStop).toHaveBeenCalledTimes(1);
-    expect(chain1Stop).toHaveBeenCalledTimes(2); // TO DO investigate: synchronous erron on chain fn
+    expect(chain1Stop).toHaveBeenCalledTimes(1);
     expect(chain2Stop).toHaveBeenCalledTimes(0);
   });
 

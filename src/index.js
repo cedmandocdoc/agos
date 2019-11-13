@@ -8,19 +8,33 @@ import never from "./operators/never";
 import merge from "./operators/merge";
 import mergeLatest from "./operators/mergeLatest";
 import concat from "./operators/concat";
+
+// transform
 import map from "./operators/map";
 import tap from "./operators/tap";
+
+// filter
 import filter from "./operators/filter";
-import skip from "./operators/skip";
 import skipWhile from "./operators/skipWhile";
+
+// slice
+import slice from "./operators/slice";
+import skip from "./operators/skip";
 import take from "./operators/take";
-import takeWhile from "./operators/takeWhile";
-import scan from "./operators/scan";
 import last from "./operators/last";
+
+// period
+import takeWhile from "./operators/takeWhile";
+
+// accumulate
+import scan from "./operators/scan";
+
+// chain
 import chain from "./operators/chain";
 import join from "./operators/join";
+
+// consume
 import start from "./operators/start";
-import slice from "./operators/slice";
 
 Stream.of = of;
 Stream.from = from;
@@ -31,46 +45,52 @@ Stream.merge = merge;
 Stream.mergeLatest = mergeLatest;
 Stream.concat = concat;
 
-Stream.prototype.tap = function(fn) {
-  return tap(fn)(this);
-};
-
+// transform
 Stream.prototype.map = function(fn) {
   return map(fn)(this);
 };
 
-Stream.prototype.filter = function(fn) {
-  return filter(fn)(this);
+Stream.prototype.tap = function(fn) {
+  return tap(fn)(this);
 };
 
-Stream.prototype.skip = function(amount) {
-  return skip(amount)(this);
+// filter
+Stream.prototype.filter = function(fn) {
+  return filter(fn)(this);
 };
 
 Stream.prototype.skipWhile = function(fn) {
   return skipWhile(fn)(this);
 };
 
+// slice
+Stream.prototype.slice = function(start, end) {
+  return slice(start, end)(this);
+};
+
+Stream.prototype.skip = function(amount) {
+  return skip(amount)(this);
+};
+
 Stream.prototype.take = function(amount) {
   return take(amount)(this);
-};
-
-Stream.prototype.takeWhile = function(amount) {
-  return takeWhile(amount)(this);
-};
-
-Stream.prototype.scan = function(fn, seed) {
-  return scan(fn, seed)(this);
 };
 
 Stream.prototype.last = function() {
   return last(this);
 };
 
-Stream.prototype.slice = function(start, end) {
-  return slice(start, end)(this);
+// period
+Stream.prototype.takeWhile = function(amount) {
+  return takeWhile(amount)(this);
 };
 
+// accumulate
+Stream.prototype.scan = function(fn, seed) {
+  return scan(fn, seed)(this);
+};
+
+// chain
 Stream.prototype.chain = function(fn) {
   return chain(fn)(this);
 };
@@ -79,6 +99,7 @@ Stream.prototype.join = function() {
   return join(this);
 };
 
+// consume
 Stream.prototype.start = function(sink) {
   return start(sink)(this);
 };

@@ -26,13 +26,13 @@ class GuardSink extends Sink {
 
   complete() {
     if (!this.state.active) return;
-    this.state.active = false;
+    this.state.disable();
     this.sink.complete();
   }
 
   error(e) {
     if (!this.state.active) return;
-    this.state.active = false;
+    this.state.disable();
     this.sink.error(e);
   }
 }

@@ -1,7 +1,5 @@
-import Stream from "../Stream";
-import Slice from "../producers/Slice";
+import slice from "./slice";
 
-const skip = amount => stream =>
-  new Stream(Slice.join(stream.producer, amount));
+const skip = amount => slice(amount);
 
 export default skip;

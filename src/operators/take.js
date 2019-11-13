@@ -1,7 +1,5 @@
-import Stream from "../Stream";
-import Slice from "../producers/Slice";
+import slice from "./slice";
 
-const take = amount => stream =>
-  new Stream(Slice.join(stream.producer, 0, amount));
+const take = amount => slice(0, amount);
 
 export default take;

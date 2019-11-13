@@ -20,6 +20,7 @@ import last from "./operators/last";
 import chain from "./operators/chain";
 import join from "./operators/join";
 import start from "./operators/start";
+import slice from "./operators/slice";
 
 Stream.of = of;
 Stream.from = from;
@@ -64,6 +65,10 @@ Stream.prototype.scan = function(fn, seed) {
 
 Stream.prototype.last = function() {
   return last(this);
+};
+
+Stream.prototype.slice = function(start, end) {
+  return slice(start, end)(this);
 };
 
 Stream.prototype.chain = function(fn) {

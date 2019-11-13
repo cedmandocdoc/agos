@@ -1,6 +1,5 @@
-import Stream from "../Stream";
-import Slice from "../producers/Slice";
+import slice from "./slice";
 
-const last = stream => new Stream(Slice.join(stream.producer, -1));
+const last = slice(-1);
 
 export default last;

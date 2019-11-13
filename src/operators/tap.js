@@ -1,13 +1,9 @@
-import Stream from "../Stream";
-import Transform from "../producers/Transform";
+import map from "./map";
 
-const tap = fn => stream => {
-  const producer = Transform.join(stream.producer, d => {
+const tap = fn =>
+  map(d => {
     fn(d);
     return d;
   });
-
-  return new Stream(producer);
-};
 
 export default tap;

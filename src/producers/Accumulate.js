@@ -26,8 +26,8 @@ class AccumulateSink extends Sink {
     this.seed = seed;
   }
 
-  next(data) {
-    this.seed = this.fn(this.seed, data);
+  next(d) {
+    this.seed = this.fn(this.seed, d);
     this.sink.next(this.seed);
   }
 }

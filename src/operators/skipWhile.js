@@ -1,7 +1,5 @@
-import Stream from "../Stream";
-import Filter from "../producers/Filter";
+import filter from "./filter";
 
-const skipWhile = fn => stream =>
-  new Stream(Filter.join(stream.producer, data => !fn(data)));
+const skipWhile = fn => filter(d => !fn(d));
 
 export default skipWhile;

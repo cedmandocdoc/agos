@@ -12,8 +12,9 @@
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "format": "prettier --write 'src/**/*.js'",
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "clean": "rm -rf ./dist",
+    "build": "yarn clean && rollup -c",
+    "dev": "yarn clean && rollup -c -w -m",
     "test": "jest"
   },
   "devDependencies": {

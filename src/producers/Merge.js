@@ -1,5 +1,8 @@
 import Stream from "../Stream";
 import Sink from "../Sink";
+import State from "../State";
+import Teardown from "./Teardown";
+import Guard from "./Guard";
 
 class Merge {
   constructor(streams) {
@@ -19,7 +22,8 @@ class Merge {
     for (let index = 0; index < this.streams.length; index++) {
       const current = new CurrentSink(sink, state, index, main);
       const stream = this.streams[index];
-      const control = stream.start(current);
+      const producer = Teardown.join(Guard.join(stream.producer));
+      const control = producer.run(current, new State());
       main.teardowns[index] = control.stop;
     }
 

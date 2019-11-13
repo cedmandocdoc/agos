@@ -1,4 +1,7 @@
 import Sink from "../Sink";
+import State from "../State";
+import Teardown from "./Teardown";
+import Guard from "./Guard";
 
 class Chain {
   constructor(producer, fns) {
@@ -46,7 +49,8 @@ class MainSink extends Sink {
     const stream = fn(d);
     const sink = new RecursiveSink(this.sink, this.state, this.fns, 1, this);
     this.inprogress++; // increment in progress before start
-    const control = stream.start(sink);
+    const producer = Teardown.join(Guard.join(stream.producer));
+    const control = producer.run(sink, new State());
     this.teardowns[1] = control.stop;
   }
 
@@ -82,7 +86,8 @@ class RecursiveSink extends Sink {
       this.main
     );
     this.main.inprogress++;
-    const control = stream.start(sink);
+    const producer = Teardown.join(Guard.join(stream.producer));
+    const control = producer.run(sink, new State());
     this.main.teardowns[this.index + 1] = control.stop;
   }
 

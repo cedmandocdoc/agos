@@ -1,5 +1,8 @@
 import Stream from "../Stream";
 import Sink from "../Sink";
+import State from "../State";
+import Teardown from "./Teardown";
+import Guard from "./Guard";
 
 class Concat {
   constructor(streams) {
@@ -49,7 +52,8 @@ class ConcatSink extends Sink {
   run() {
     const stream = this.steams[this.current];
     if (!stream) return;
-    const control = stream.start(this);
+    const producer = Teardown.join(Guard.join(stream.producer));
+    const control = producer.run(this, new State());
     this.teardowns[this.current] = control.stop;
   }
 }

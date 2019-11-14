@@ -1,6 +1,6 @@
 import Stream from "../Stream";
-import Chain from "../producers/Chain";
+import Flatten from "../producers/Flatten";
 
-const join = stream => new Stream(Chain.join(stream.producer, [() => stream]));
+const join = stream => new Stream(Flatten.join(stream.producer));
 
 export default join;

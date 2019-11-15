@@ -10,28 +10,36 @@ class Teardown {
   }
 
   run(sink, state) {
-    const teardown = new TeardownSink(sink, state);
+    const runner = new TeardownRunner();
+    return runner.run(sink, state, this.producer);
+  }
+}
 
-    const control = this.producer.run(teardown, state);
-    teardown.stop = control.stop;
+class TeardownRunner {
+  constructor() {
+    this.stop = () => {};
+  }
 
+  run(sink, state, producer) {
+    const control = producer.run(new TeardownSink(sink, this), state);
+    this.stop = control.stop;
     return control;
   }
 }
 
 class TeardownSink extends Sink {
-  constructor(sink, state) {
-    super(sink, state);
-    this.stop = () => {};
+  constructor(sink, runner) {
+    super(sink);
+    this.runner = runner;
   }
 
   complete() {
-    this.stop();
+    this.runner.stop();
     this.sink.complete();
   }
 
   error(e) {
-    this.stop();
+    this.runner.stop();
     this.sink.error(e);
   }
 }

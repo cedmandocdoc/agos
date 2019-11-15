@@ -3,8 +3,8 @@ class Source {
     this.fn = fn;
   }
 
-  run(sink, state) {
-    const control = this.fn(sink, state);
+  run(sink) {
+    const control = this.fn(sink);
     return control || { stop: () => {} };
   }
 }

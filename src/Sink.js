@@ -1,7 +1,6 @@
 class Sink {
-  constructor(sink, state) {
+  constructor(sink) {
     this.sink = sink;
-    this.state = state;
   }
 
   next(d) {

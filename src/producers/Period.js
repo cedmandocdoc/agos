@@ -13,13 +13,13 @@ class Period {
   }
 
   run(sink, state) {
-    return this.producer.run(new PeriodSink(sink, state, this.fn), state);
+    return this.producer.run(new PeriodSink(sink, this.fn), state);
   }
 }
 
 class PeriodSink extends Sink {
-  constructor(sink, state, fn) {
-    super(sink, state);
+  constructor(sink, fn) {
+    super(sink);
     this.fn = fn;
   }
 

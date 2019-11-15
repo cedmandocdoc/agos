@@ -5,23 +5,24 @@ import Teardown from "./Teardown";
 import Guard from "./Guard";
 
 class Concat {
-  constructor(streams) {
+  constructor(streams = []) {
     this.streams = streams;
   }
 
-  static join(producer, streams) {
+  static join(producer, streams = []) {
     return producer instanceof Concat
       ? new Concat([...producer.streams, ...streams])
       : new Concat([new Stream(producer), ...streams]);
   }
 
-  run(sink, state) {
-    const concat = new ConcatSink(sink, state, this.streams);
-    concat.run();
+  run(sink) {
+    const runner = new ConcatRunner(this.streams);
+    runner.run(new ConcatSink(sink, runner));
+
     return {
       stop: () => {
-        for (let index = 0; index < concat.teardowns.length; index++) {
-          const teardown = concat.teardowns[index];
+        for (let index = 0; index < runner.teardowns.length; index++) {
+          const teardown = runner.teardowns[index];
           teardown();
         }
       }
@@ -29,32 +30,38 @@ class Concat {
   }
 }
 
-class ConcatSink extends Sink {
-  constructor(sink, state, streams) {
-    super(sink, state);
-    this.steams = streams;
+class ConcatRunner {
+  constructor(streams) {
+    this.streams = streams;
     this.teardowns = [];
     this.current = 0;
   }
 
+  run(sink) {
+    const stream = this.streams[this.current];
+    const producer = Teardown.join(Guard.join(stream.producer));
+    const control = producer.run(sink, new State());
+    this.teardowns[this.current] = control.stop;
+  }
+}
+
+class ConcatSink extends Sink {
+  constructor(sink, runner) {
+    super(sink);
+    this.runner = runner;
+  }
+
   complete() {
-    this.teardowns[this.current] = () => {};
-    this.current++;
-    if (this.current > this.steams.length - 1) this.sink.complete();
-    else this.run();
+    this.runner.teardowns[this.runner.current] = () => {};
+    this.runner.current++;
+    if (this.runner.current > this.runner.streams.length - 1)
+      this.sink.complete();
+    else this.runner.run(this);
   }
 
   error(e) {
-    this.teardowns[this.current] = () => {};
+    this.runner.teardowns[this.runner.current] = () => {};
     this.sink.error(e);
-  }
-
-  run() {
-    const stream = this.steams[this.current];
-    if (!stream) return;
-    const producer = Teardown.join(Guard.join(stream.producer));
-    const control = producer.run(this, new State());
-    this.teardowns[this.current] = control.stop;
   }
 }
 

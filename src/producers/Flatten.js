@@ -14,58 +14,60 @@ class Flatten {
   }
 
   run(sink, state) {
-    const flatten = new FlattenSink(sink, new FlattenState(), 0);
-    flatten.state.inprogress++;
-
-    const control = this.producer.run(flatten, state);
-    flatten.state.teardowns[0] = control.stop;
+    const runner = new FlattenRunner();
+    const control = runner.run(sink, state, Teardown.join(this.producer), 0);
 
     return {
       ...control,
       stop: () => {
-        for (let index = 0; index < flatten.state.teardowns; index++) {
-          const teardown = flatten.state.teardowns[index];
+        for (let index = 0; index < runner.teardowns; index++) {
+          const teardown = runner.teardowns[index];
           teardown();
         }
-        flatten.state.teardowns = [];
-        flatten.state.inprogress = 0;
       }
     };
   }
 }
 
-class FlattenState {
+class FlattenRunner {
   constructor() {
     this.teardowns = [];
     this.inprogress = 0;
   }
+
+  run(sink, state, producer, index) {
+    this.inprogress++;
+    const control = producer.run(new FlattenSink(sink, index, this), state);
+    this.teardowns[index] = control.stop;
+    return control;
+  }
 }
 
 class FlattenSink extends Sink {
-  constructor(sink, state, index) {
+  constructor(sink, index, runner) {
     super(sink);
-    this.state = state;
     this.index = index;
+    this.runnner = runner;
   }
 
   next(d) {
     if (d instanceof Stream) {
       const producer = Teardown.join(Guard.join(d.producer));
-      this.state.inprogress++;
-      const control = producer.run(
-        new FlattenSink(this.sink, this.state, this.index + 1),
-        new State()
-      );
-      this.state.teardowns[this.index + 1] = control.stop;
+      this.runnner.run(this.sink, new State(), producer, this.index + 1);
     } else {
       this.sink.next(d);
     }
   }
 
   complete() {
-    this.state.inprogress--;
-    this.state.teardowns[this.index] = () => {};
-    if (this.state.inprogress <= 0) this.sink.complete();
+    this.runnner.inprogress--;
+    this.runnner.teardowns[this.index] = () => {};
+    if (this.runnner.inprogress <= 0) this.sink.complete();
+  }
+
+  error(e) {
+    this.runnner.teardowns[this.index] = () => {};
+    this.sink.error(e);
   }
 }
 

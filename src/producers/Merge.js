@@ -15,22 +15,14 @@ class Merge {
       : new Merge([new Stream(producer), ...streams]);
   }
 
-  run(sink, state) {
-    const main = new MainSink(sink, state);
-    main.inprogress = this.streams.length;
-
-    for (let index = 0; index < this.streams.length; index++) {
-      const current = new CurrentSink(sink, state, index, main);
-      const stream = this.streams[index];
-      const producer = Teardown.join(Guard.join(stream.producer));
-      const control = producer.run(current, new State());
-      main.teardowns[index] = control.stop;
-    }
+  run(sink) {
+    const runner = new MergeRunner(this.streams);
+    runner.run(sink);
 
     return {
       stop: () => {
-        for (let index = 0; index < main.teardowns.length; index++) {
-          const teardown = main.teardowns[index];
+        for (let index = 0; index < runner.teardowns.length; index++) {
+          const teardown = runner.teardowns[index];
           teardown();
         }
       }
@@ -38,24 +30,32 @@ class Merge {
   }
 }
 
-class MainSink extends Sink {
-  constructor(sink, state) {
-    super(sink, state);
-    this.inprogress = 0;
+class MergeRunner {
+  constructor(streams) {
+    this.streams = streams;
     this.teardowns = [];
+    this.inprogress = 0;
   }
 
-  complete() {
-    this.inprogress--;
-    if (this.inprogress === 0) this.sink.complete();
+  run(sink) {
+    for (let index = 0; index < this.streams.length; index++) {
+      const stream = this.streams[index];
+      const producer = Teardown.join(Guard.join(stream.producer));
+      this.inprogress++;
+      const control = producer.run(
+        new MergeSink(sink, index, this),
+        new State()
+      );
+      this.teardowns[index] = control.stop;
+    }
   }
 }
 
-class CurrentSink extends Sink {
-  constructor(sink, state, index, main) {
-    super(sink, state);
+class MergeSink extends Sink {
+  constructor(sink, index, runner) {
+    super(sink);
     this.index = index;
-    this.main = main;
+    this.runner = runner;
   }
 
   next(d) {
@@ -63,13 +63,14 @@ class CurrentSink extends Sink {
   }
 
   complete() {
-    this.main.teardowns[this.index] = () => {};
-    this.main.complete();
+    this.runner.inprogress--;
+    this.runner.teardowns[this.index] = () => {};
+    if (this.runner.inprogress <= 0) this.sink.complete();
   }
 
   error(e) {
-    this.main.teardowns[this.index] = () => {};
-    this.main.error(e);
+    this.runner.teardowns[this.index] = () => {};
+    this.sink.error(e);
   }
 }
 

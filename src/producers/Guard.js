@@ -16,7 +16,8 @@ class Guard {
 
 class GuardSink extends Sink {
   constructor(sink, state) {
-    super(sink, state);
+    super(sink);
+    this.state = state;
   }
 
   next(d) {

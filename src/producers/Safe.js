@@ -10,13 +10,13 @@ class Safe {
   }
 
   run(sink, state) {
-    return this.producer.run(new SafeSink(sink, state), state);
+    return this.producer.run(new SafeSink(sink), state);
   }
 }
 
 class SafeSink extends Sink {
-  constructor(sink, state) {
-    super(sink, state);
+  constructor(sink) {
+    super(sink);
   }
 
   next(d) {

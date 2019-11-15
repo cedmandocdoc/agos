@@ -20,16 +20,16 @@ class Slice {
   run(sink, state) {
     return this.producer.run(
       this.start < 0 || this.end < 0
-        ? new FutureSink(sink, state, this.start, this.end)
-        : new SliceSink(sink, state, this.start, this.end),
+        ? new FutureSink(sink, this.start, this.end)
+        : new SliceSink(sink, this.start, this.end),
       state
     );
   }
 }
 
 class SliceSink extends Sink {
-  constructor(sink, state, start, end) {
-    super(sink, state);
+  constructor(sink, start, end) {
+    super(sink);
     this.start = start;
     this.end = end;
     this.count = 0;
@@ -43,8 +43,8 @@ class SliceSink extends Sink {
 }
 
 class FutureSink extends Sink {
-  constructor(sink, state, start, end) {
-    super(sink, state);
+  constructor(sink, start, end) {
+    super(sink);
     this.start = start;
     this.end = end;
     this.count = 0;

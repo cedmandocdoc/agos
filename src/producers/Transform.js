@@ -13,13 +13,13 @@ class Transform {
   }
 
   run(sink, state) {
-    return this.producer.run(new TransformSink(sink, state, this.fn), state);
+    return this.producer.run(new TransformSink(sink, this.fn), state);
   }
 }
 
 class TransformSink extends Sink {
-  constructor(sink, state, fn) {
-    super(sink, state);
+  constructor(sink, fn) {
+    super(sink);
     this.fn = fn;
   }
 

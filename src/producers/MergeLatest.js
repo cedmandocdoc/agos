@@ -13,27 +13,24 @@ class MergeLatest {
       : new MergeLatest([new Stream(producer), ...streams]);
   }
 
-  run(sink, state) {
+  run(sink) {
     const producer = new Merge(this.streams);
-
-    return producer.run(new MergeLatestSink(sink, state, this.streams), state);
+    return producer.run(new MergeLatestSink(sink, this.streams));
   }
 }
 
 class MergeLatestSink extends Sink {
-  constructor(sink, state, streams) {
-    super(sink, state);
+  constructor(sink, streams) {
+    super(sink);
     this.seen = [];
     this.values = [];
-    for (let index = 0; index < streams.length; index++) {
-      this.values.push(null);
-    }
+    this.length = streams.length;
   }
 
   next(d, i) {
     this.values[i] = d; // mutates the current data
     if (!this.seen[i]) this.seen[i] = true;
-    if (this.seen.length === this.values.length) this.sink.next(this.values);
+    if (this.seen.length === this.length) this.sink.next(this.values);
   }
 }
 

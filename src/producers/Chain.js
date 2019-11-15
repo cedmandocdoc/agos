@@ -16,92 +16,60 @@ class Chain {
   }
 
   run(sink, state) {
-    const main = new MainSink(sink, state, this.fns);
-    main.inprogress++; // increment in progress before start
-
-    const control = this.producer.run(main, state);
-    main.teardowns[0] = control.stop;
+    const runner = new ChainRunner(this.fns);
+    const control = runner.run(sink, state, Teardown.join(this.producer), 0);
 
     return {
       ...control,
       stop: () => {
-        for (let index = 0; index < main.teardowns; index++) {
-          const teardown = main.teardowns[index];
+        for (let index = 0; index < runner.teardowns; index++) {
+          const teardown = runner.teardowns[index];
           teardown();
         }
-        main.teardowns = [];
-        main.inprogress = 0;
       }
     };
   }
 }
 
-class MainSink extends Sink {
-  constructor(sink, state, fns) {
-    super(sink, state);
+class ChainRunner {
+  constructor(fns) {
     this.fns = fns;
     this.teardowns = [];
     this.inprogress = 0;
   }
 
-  next(d) {
-    const fn = this.fns[0];
-    const stream = fn(d);
-    const sink = new RecursiveSink(this.sink, this.state, this.fns, 1, this);
-    this.inprogress++; // increment in progress before start
-    const producer = Teardown.join(Guard.join(stream.producer));
-    const control = producer.run(sink, new State());
-    this.teardowns[1] = control.stop;
-  }
-
-  complete() {
-    this.inprogress--;
-    this.teardowns[0] && this.teardowns[0]();
-    this.teardowns[0] = () => {}; // clear main when complete
-    this.end(); // try dispatch all complete
-  }
-
-  end() {
-    if (this.inprogress <= 0) this.sink.complete();
+  run(sink, state, producer, index) {
+    this.inprogress++;
+    const control = producer.run(new ChainSink(sink, index, this), state);
+    this.teardowns[index] = control.stop;
+    return control;
   }
 }
 
-class RecursiveSink extends Sink {
-  constructor(sink, state, fns, index, main) {
-    super(sink, state);
-    this.fns = fns;
+class ChainSink extends Sink {
+  constructor(sink, index, runner) {
+    super(sink);
     this.index = index;
-    this.main = main;
+    this.runner = runner;
   }
 
   next(d) {
-    if (this.index >= this.fns.length) return this.sink.next(d);
-    const fn = this.fns[this.index];
+    if (this.index >= this.runner.fns.length) return this.sink.next(d);
+    const fn = this.runner.fns[this.index];
     const stream = fn(d);
-    const sink = new RecursiveSink(
-      this.sink,
-      this.state,
-      this.fns,
-      this.index + 1,
-      this.main
-    );
-    this.main.inprogress++;
     const producer = Teardown.join(Guard.join(stream.producer));
-    const control = producer.run(sink, new State());
-    this.main.teardowns[this.index + 1] = control.stop;
+    this.runner.run(this.sink, new State(), producer, this.index + 1);
   }
 
   complete() {
-    this.main.inprogress--;
-    // clear when current propagate complete
-    this.main.teardowns[this.index] = () => {};
-    this.main.end(); // try to dispatch all complete
+    this.runner.inprogress--;
+    this.runner.teardowns[this.index] = () => {};
+    if (this.runner.inprogress <= 0) this.sink.complete();
   }
 
   error(e) {
-    // clear when current propagates error, since stream were auto tearing down by default
-    this.main.teardowns[this.index] = () => {};
-    this.main.error(e);
+    this.runner.teardowns[this.index] = () => {};
+    this.sink.error(e);
   }
 }
 

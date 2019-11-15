@@ -13,15 +13,15 @@ class Accumulate {
 
   run(sink, state) {
     return this.producer.run(
-      new AccumulateSink(sink, state, this.fn, this.seed),
+      new AccumulateSink(sink, this.fn, this.seed),
       state
     );
   }
 }
 
 class AccumulateSink extends Sink {
-  constructor(sink, state, fn, seed) {
-    super(sink, state);
+  constructor(sink, fn, seed) {
+    super(sink);
     this.fn = fn;
     this.seed = seed;
   }

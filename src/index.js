@@ -95,8 +95,8 @@ Stream.prototype.chain = function(fn) {
   return chain(fn)(this);
 };
 
-Stream.prototype.join = function() {
-  return join(this);
+Stream.prototype.join = function(level) {
+  return join(level)(this);
 };
 
 // consume

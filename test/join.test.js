@@ -40,6 +40,7 @@ describe("join", () => {
 
     Stream.of(Stream.of(stream))
       .join()
+      .join()
       .start({
         next,
         complete,
@@ -73,6 +74,7 @@ describe("join", () => {
         })
       )
     )
+      .join()
       .join()
       .start({
         next,

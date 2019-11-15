@@ -1,20 +1,22 @@
-import Stream from "../Stream";
 import State from "../State";
 import Sink from "../Sink";
 import Teardown from "./Teardown";
 import Guard from "./Guard";
 
 class Flatten {
-  constructor(producer) {
+  constructor(producer, level = 1) {
     this.producer = producer;
+    this.level = level;
   }
 
-  static join(producer) {
-    return producer instanceof Flatten ? producer : new Flatten(producer);
+  static join(producer, level = 1) {
+    return producer instanceof Flatten
+      ? new Flatten(producer.producer, producer.level + level)
+      : new Flatten(producer, level);
   }
 
   run(sink, state) {
-    const runner = new FlattenRunner();
+    const runner = new FlattenRunner(this.level);
     const control = runner.run(sink, state, Teardown.join(this.producer), 0);
 
     return {
@@ -30,43 +32,49 @@ class Flatten {
 }
 
 class FlattenRunner {
-  constructor() {
+  constructor(level) {
+    this.level = level;
     this.teardowns = [];
     this.inprogress = 0;
+    this.count = 0;
   }
 
-  run(sink, state, producer, index) {
+  run(sink, state, producer, level) {
     this.inprogress++;
-    const control = producer.run(new FlattenSink(sink, index, this), state);
-    this.teardowns[index] = control.stop;
+    const control = producer.run(
+      new FlattenSink(sink, this.count, level, this),
+      state
+    );
+    this.teardowns[this.count] = control.stop;
+    this.count++;
     return control;
   }
 }
 
 class FlattenSink extends Sink {
-  constructor(sink, index, runner) {
+  constructor(sink, index, level, runner) {
     super(sink);
     this.index = index;
-    this.runnner = runner;
+    this.level = level;
+    this.runner = runner;
   }
 
   next(d) {
-    if (d instanceof Stream) {
+    if (this.runner.level <= this.level) this.sink.next(d);
+    else {
       const producer = Teardown.join(Guard.join(d.producer));
-      this.runnner.run(this.sink, new State(), producer, this.index + 1);
-    } else {
-      this.sink.next(d);
+      this.runner.run(this.sink, new State(), producer, this.level + 1);
     }
   }
 
   complete() {
-    this.runnner.inprogress--;
-    this.runnner.teardowns[this.index] = () => {};
-    if (this.runnner.inprogress <= 0) this.sink.complete();
+    this.runner.inprogress--;
+    this.runner.teardowns[this.index] = () => {};
+    if (this.runner.inprogress <= 0) this.sink.complete();
   }
 
   error(e) {
-    this.runnner.teardowns[this.index] = () => {};
+    this.runner.teardowns[this.index] = () => {};
     this.sink.error(e);
   }
 }

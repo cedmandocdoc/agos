@@ -36,12 +36,14 @@ class ChainRunner {
     this.fns = fns;
     this.teardowns = [];
     this.inprogress = 0;
+    this.count = 0;
   }
 
-  run(sink, state, producer, index) {
+  run(sink, state, producer) {
     this.inprogress++;
-    const control = producer.run(new ChainSink(sink, index, this), state);
-    this.teardowns[index] = control.stop;
+    const control = producer.run(new ChainSink(sink, this.count, this), state);
+    this.teardowns[this.count] = control.stop;
+    this.count++;
     return control;
   }
 }
@@ -58,7 +60,7 @@ class ChainSink extends Sink {
     const fn = this.runner.fns[this.index];
     const stream = fn(d);
     const producer = Teardown.join(Guard.join(stream.producer));
-    this.runner.run(this.sink, new State(), producer, this.index + 1);
+    this.runner.run(this.sink, new State(), producer);
   }
 
   complete() {

@@ -1,6 +1,6 @@
 {
   "name": "agos",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Small and fast reactive programming library",
   "homepage": "https://github.com/cmandocdoc/agos",
   "main": "dist/agos.cjs.js",

@@ -1,7 +1,7 @@
 # Agos
 
 Agos `(Filipino translation of Stream)` is a library for reactive programming that helps to do an operation on stream of values
-like DOM Events, WebSockets, Timer, and etc. The difference of agos on other reactive library is that a stream can have a different controls aside from stopping it.
+like DOM Events, WebSockets, Timer, and etc. The difference of agos on other reactive library is that a stream can have a different controls (see [example](#example)) aside from stopping, it also features fast propagation, less scope chaining, producer or source fusion and small bundle size.
 
 ## Example
 
@@ -25,16 +25,18 @@ const interval = duration =>
     return { play, stop };
   });
 
-const stream = interval(100).start({
+const control = interval(100).start({
   next: count => console.log(count),
   error: error => console.log(error),
   complete: () => console.log("completed")
 }); // start the stream at time 0
 
-setTimeout(() => stream.stop(), 300); // fire stop method at time 300
-setTimeout(() => stream.play(), 600); // fire play method at time 600
-setTimeout(() => stream.stop(), 900); // fire stop method at time 900
+setTimeout(() => control.stop(), 300); // fire stop method at time 300
+setTimeout(() => control.play(), 600); // fire play method at time 600
+setTimeout(() => control.stop(), 900); // fire stop method at time 900
 ```
+
+The `interval` function accepts a duration that indicates the millisecond count when to propagate, it then returns a Stream which has a [Producer](#producer) that dictates the logic of propagation. This Producer has a `play` method that runs the next method of [Sink](#sink), this where the propagation will happen, and a `stop` method that stops the interval.
 
 ## API
 
@@ -65,7 +67,7 @@ setTimeout(() => stream.stop(), 900); // fire stop method at time 900
 Creates a Stream that emits the given argument, then completes.
 
 - Arguments:
-  - `value` type any, value that will be propagated.
+  - `value` any value that will be propagated.
 - Return: Stream
 
 ---
@@ -75,7 +77,7 @@ Creates a Stream that emits the given argument, then completes.
 Creates a Stream that emits each item on the given array, then completes.
 
 - Arguments:
-  - `values` type array of any, array where each item will be coming from.
+  - `values` array of any where each item will be coming from.
 - Return: Stream
 
 ---
@@ -93,7 +95,7 @@ Creates a Stream that immediately completes upon started.
 Creates a Stream that immediately emit an error upon started.
 
 - Arguments:
-  - `error` type any, value that will be propagated on sink error.
+  - `error`: value that will be propagated on sink error.
 - Return: Stream
 
 ---
@@ -111,7 +113,7 @@ Creates a Stream that does nothing.
 Creates a Stream that emits all values received from the given streams.
 
 - Arguments:
-  - `streams` type array of stream where all data will be coming from.
+  - `streams`: array of stream where all data will be coming from.
 - Return: Stream
 
 ### <a id="mergeLatest"></a> `mergeLatest(streams)`
@@ -119,7 +121,7 @@ Creates a Stream that emits all values received from the given streams.
 Creates a Stream that emits all latest values received from the given streams.
 
 - Arguments:
-  - `streams` type array of stream where latest data will be coming from.
+  - `streams`: array of stream where latest data will be coming from.
 - Return: Stream
 
 ---
@@ -129,7 +131,7 @@ Creates a Stream that emits all latest values received from the given streams.
 Creates a Stream that emits values received from the given streams, one after another completes.
 
 - Arguments:
-  - `streams` type array of stream where each data will be coming from.
+  - `streams`: array of stream where each data will be coming from.
 - Return: Stream
 
 ---
@@ -139,7 +141,7 @@ Creates a Stream that emits values received from the given streams, one after an
 Transform the received values through `fn` then propagates.
 
 - Arguments:
-  - `fn` type function, will propagate its return value.
+  - `fn`: function that transforms the received value.
 - Return: Stream
 
 ---
@@ -149,7 +151,7 @@ Transform the received values through `fn` then propagates.
 Runs the `fn` whenever receives a value then propagate the value.
 
 - Arguments:
-  - `fn` type function, will propagate its received value.
+  - `fn`: function that runs whenever receives value.
 - Return: Stream
 
 ---
@@ -159,7 +161,7 @@ Runs the `fn` whenever receives a value then propagate the value.
 Propagate the values received whenever `fn` returns true.
 
 - Arguments:
-  - `fn` type function, will propagate if returns true.
+  - `fn`: function that indicates what it will propagate.
 - Return: Stream
 
 ---
@@ -169,7 +171,7 @@ Propagate the values received whenever `fn` returns true.
 Propagate the values received whenever `fn` returns false.
 
 - Arguments:
-  - `fn` type function, will propagate if returns false.
+  - `fn`: function that indicates when it will propagate.
 - Return: Stream
 
 ---
@@ -179,8 +181,8 @@ Propagate the values received whenever `fn` returns false.
 Slice the received valeus by an amount, this works like `slice` method of array in JavaScript.
 
 - Arguments:
-  - `start` type number, amount indication when it will propagate. Negative number indicate that it will offset from end, meaning an amount from end will not be propagated.
-  - `end` type number, amount indication when it will propagate complete. Negative number indicate that it will offset from end, meaning an amount from end will be propagated then completes.
+  - `start`: number that indicates when it will propagate. Negative number indicate that it will offset from end, meaning an amount from end will not be propagated.
+  - `end` number that indicates when it will propagate complete. Negative number indicate that it will offset from end, meaning an amount from end will be propagated then completes.
 - Return: Stream
 
 ---
@@ -190,7 +192,7 @@ Slice the received valeus by an amount, this works like `slice` method of array 
 Skips an amount of values then propagates, same as `slice(amount)`.
 
 - Arguments:
-  - `amount` type number, count to skip.
+  - `amount`: number of count to skip.
 - Return: Stream
 
 ---
@@ -200,7 +202,7 @@ Skips an amount of values then propagates, same as `slice(amount)`.
 Propagate an amount of values then completes, same as `slice(0, amount)`.
 
 - Arguments:
-  - `amount` type number, count to take.
+  - `amount`: number of count to take.
 - Return: Stream
 
 ---
@@ -218,7 +220,7 @@ Store all values receives then propagates the last and then completes, Same as `
 Propagates data whenever `fn` returns true else this will complete.
 
 - Arguments:
-  - `fn` type function, indication when only to take values.
+  - `fn`: function that indicates when only to take values.
 - Return: Stream
 
 ---
@@ -228,8 +230,8 @@ Propagates data whenever `fn` returns true else this will complete.
 Propagates the accumulated data of `acc` function.
 
 - Arguments:
-  - `acc` type function, receives `accumulate` and `current` and returns new `accumulate`.
-  - `initial` type any, value that will be received on `accumulate` on its first propagation.
+  - `acc`: function that receives `accumulate` and `current` and returns new `accumulate`.
+  - `initial`: value that will be received on `accumulate` on first propagation.
 - Return: Stream
 
 ---
@@ -239,7 +241,7 @@ Propagates the accumulated data of `acc` function.
 Run each values to a Stream then merge to the output.
 
 - Arguments:
-  - `fn` type function that returns stream. Runs and start the return stream whenever receives a value.
+  - `fn`: function that returns stream.
 - Return: Stream
 
 ---
@@ -249,7 +251,7 @@ Run each values to a Stream then merge to the output.
 Flatten the streams into one stream.
 
 - Arguments:
-  - `amount` type optional number default to 1, number of count to flatten stream.
+  - `amount`: optional number default to 1, that indicates number of count to flatten the stream.
 - Return: Stream
 
 ---
@@ -259,5 +261,29 @@ Flatten the streams into one stream.
 Starts the stream, this will invoke the producer function.
 
 - Arguments:
-  - `sink` type object or function, object has three properties: `next` function where data will propagate, `complete` function where completion took and `error` function where error took.
-- Return: object, this object is the return value of producer function.
+  - [Sink](#sink)
+- Return: [Control](#control)
+
+---
+
+## Types
+
+### Producer
+
+Producer is a function where propagation logic takes place.
+
+- Arguments:
+  - [Sink](#sink)
+- Return: [Control](#control)
+
+### Sink
+
+Sink is an object that has three methods:
+
+- `next`: fires the data propagation.
+- `complete`: propagate a completion. This will run the `stop` method of [Control](#control), closes the stream and any propagation will be ignored unless run another [start](#start).
+- `error`: propagate an error. This will run the `stop` method of [Control](#control), closes the stream and any propagation will be ignored unless run another [start](#start).
+
+### Control
+
+Control is an object that requires only a `stop` method, this usually cancel or clear subscription event like `clearInterval` or `removeListener`.

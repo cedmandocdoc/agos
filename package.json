@@ -2,6 +2,7 @@
   "name": "agos",
   "version": "0.0.0",
   "description": "Small and fast reactive programming library",
+  "homepage": "https://github.com/cmandocdoc/agos",
   "main": "dist/agos.cjs.js",
   "module": "dist/agos.esm.js",
   "browser": "dist/agos.umd.js",

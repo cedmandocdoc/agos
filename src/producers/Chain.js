@@ -17,7 +17,7 @@ class Chain {
 
   run(sink, state) {
     const runner = new ChainRunner(this.fns);
-    const control = runner.run(sink, state, Teardown.join(this.producer), 0);
+    const control = runner.run(sink, state, Teardown.join(this.producer));
 
     return {
       ...control,
@@ -41,9 +41,10 @@ class ChainRunner {
 
   run(sink, state, producer) {
     this.inprogress++;
-    const control = producer.run(new ChainSink(sink, this.count, this), state);
-    this.teardowns[this.count] = control.stop;
+    const chainSink = new ChainSink(sink, this.count, this);
     this.count++;
+    const control = producer.run(chainSink, state);
+    this.teardowns[chainSink.index] = control.stop;
     return control;
   }
 }

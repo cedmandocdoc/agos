@@ -41,12 +41,10 @@ class FlattenRunner {
 
   run(sink, state, producer, level) {
     this.inprogress++;
-    const control = producer.run(
-      new FlattenSink(sink, this.count, level, this),
-      state
-    );
-    this.teardowns[this.count] = control.stop;
+    const flatSink = new FlattenSink(sink, this.count, level, this);
     this.count++;
+    const control = producer.run(flatSink, state);
+    this.teardowns[flatSink.index] = control.stop;
     return control;
   }
 }

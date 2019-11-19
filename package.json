@@ -1,7 +1,7 @@
 {
   "name": "agos",
   "version": "0.0.0",
-  "description": "Javascript reactive programming library",
+  "description": "Small and fast reactive programming library",
   "main": "dist/agos.cjs.js",
   "module": "dist/agos.esm.js",
   "browser": "dist/agos.umd.js",
@@ -9,6 +9,20 @@
   "author": "Cedrick Mandocdoc <cedrickmandocdoc@gmail.com>",
   "license": "MIT",
   "private": false,
+  "keywords": [
+    "stream",
+    "observable",
+    "event",
+    "controllable stream",
+    "controllable observable",
+    "controllable event",
+    "functional",
+    "reactive",
+    "asynchonous",
+    "functional programming",
+    "reactive programming",
+    "asynchronous programming"
+  ],
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "format": "prettier --write 'src/**/*.js'",

@@ -1,4 +1,5 @@
 const { interval } = require("./utils");
+const { pipe, listen, map } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
@@ -6,83 +7,58 @@ describe("map", () => {
   it("should transform data through project function and then propagate", () => {
     const received = [];
 
+    const open = jest.fn();
     const next = jest.fn(data => received.push(data));
-    const complete = jest.fn();
     const error = jest.fn();
-    const map = jest.fn(data => data.toString());
+    const close = jest.fn();
+    const project = jest.fn(data => data.toString());
 
-    const [base, baseStop] = interval(100, 3);
+    const control = pipe(
+      interval(100, 3),
+      map(project),
+      listen({ open, next, error, close })
+    );
 
-    base.map(map).start({
-      next,
-      complete,
-      error
-    });
+    control.open();
 
     jest.advanceTimersByTime(300);
 
+    expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
-    expect(complete).toHaveBeenCalledTimes(1);
     expect(error).toHaveBeenCalledTimes(0);
-    expect(map).toHaveBeenCalledTimes(3);
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(project).toHaveBeenCalledTimes(3);
     expect(received).toEqual(["1", "2", "3"]);
-    expect(baseStop).toHaveBeenCalledTimes(1);
   });
 
-  it("should propagate error when project function throws, no data propagation", () => {
-    const err = new Error();
-
-    const next = jest.fn();
-    const complete = jest.fn();
-    const error = jest.fn(data => expect(data).toEqual(err));
-    const map = jest.fn(() => {
-      throw err;
-    });
-
-    const [base, baseStop] = interval(100, 3);
-
-    base.map(map).start({
-      next,
-      complete,
-      error
-    });
-
-    jest.advanceTimersByTime(300);
-
-    expect(next).toHaveBeenCalledTimes(0);
-    expect(complete).toHaveBeenCalledTimes(0);
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(map).toHaveBeenCalledTimes(1);
-    expect(baseStop).toHaveBeenCalledTimes(1);
-  });
-
-  it("should propagate error when project function throws, has data propagation", () => {
+  it("should propagate error when project function throws", () => {
     const received = [];
     const err = new Error();
 
+    const open = jest.fn();
     const next = jest.fn(data => received.push(data));
-    const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
-    const map = jest.fn(data => {
+    const close = jest.fn();
+    const project = jest.fn(data => {
       if (data === 2) throw err;
       return data.toString();
     });
 
-    const [base, baseStop] = interval(100, 3);
+    const control = pipe(
+      interval(100, 3),
+      map(project),
+      listen({ open, next, error, close })
+    );
 
-    base.map(map).start({
-      next,
-      complete,
-      error
-    });
+    control.open();
 
     jest.advanceTimersByTime(300);
 
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(complete).toHaveBeenCalledTimes(0);
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(2);
     expect(error).toHaveBeenCalledTimes(1);
-    expect(map).toHaveBeenCalledTimes(2);
-    expect(received).toEqual(["1"]);
-    expect(baseStop).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(project).toHaveBeenCalledTimes(3);
+    expect(received).toEqual(["1", "3"]);
   });
 });

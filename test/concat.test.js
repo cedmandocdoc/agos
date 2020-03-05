@@ -1,61 +1,56 @@
-const { Stream, interval } = require("./utils");
+const { interval } = require("./utils");
+const { pipe, listen, concat, map } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
 describe("concat", () => {
-  it("should propagate data from all values of stream one after another completes", () => {
+  it("should propagate all values from sources one after another completes", () => {
     const expected = [1, 2, 3, 1, 2];
 
+    const open = jest.fn();
     const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const complete = jest.fn();
     const error = jest.fn();
+    const close = jest.fn();
 
-    const [interval1, interval1Stop] = interval(100, 3);
-    const [interval2, interval2Stop] = interval(200, 2);
+    const control = pipe(
+      concat([interval(100, 3), interval(200, 2)]),
+      listen({ open, next, error, close })
+    );
 
-    Stream.concat([interval1, interval2]).start({
-      next,
-      complete,
-      error
-    });
+    control.open();
 
     jest.advanceTimersByTime(700);
 
+    expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(5);
-    expect(complete).toHaveBeenCalledTimes(1);
     expect(error).toHaveBeenCalledTimes(0);
-    expect(interval1Stop).toHaveBeenCalledTimes(1);
-    expect(interval2Stop).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 
-  it("should propagate error when one stream propagates an error", () => {
-    const err = new Error();
+  it("should propagate error when any source propagates an error", () => {
     const expected = [1, 2, 3];
+    const err = new Error();
 
+    const open = jest.fn();
     const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
-
-    const [interval1, interval1Stop] = interval(100, 3);
-    const [interval2, interval2Stop] = interval(200, 2);
-
-    Stream.concat([
-      interval1,
-      interval2.map(() => {
-        throw err;
-      })
-    ]).start({
-      next,
-      complete,
-      error
+    const close = jest.fn();
+    const project = map(() => {
+      throw err;
     });
 
-    jest.advanceTimersByTime(500);
+    const control = pipe(
+      concat([interval(100, 3), project(interval(200, 2))]),
+      listen({ open, next, error, close })
+    );
 
+    control.open();
+
+    jest.advanceTimersByTime(700);
+
+    expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
-    expect(complete).toHaveBeenCalledTimes(0);
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(interval1Stop).toHaveBeenCalledTimes(1);
-    expect(interval2Stop).toHaveBeenCalledTimes(1);
+    expect(error).toHaveBeenCalledTimes(2);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });

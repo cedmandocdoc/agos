@@ -1,148 +1,192 @@
 # Agos
 
-Agos `(Filipino translation of Stream)` is a library for reactive programming that helps to do an operation on stream of values
-like DOM Events, WebSockets, Timer, and etc. The difference of agos on other reactive library is that a stream can have a different controls (see [example](#example)) aside from stopping, it also features fast propagation, less scope chaining, producer or source fusion and small bundle size.
+JavaScript utility for data flow composition.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Example](#example)
+- [API](#api)
+- [License](#license)
+
+## Overview
+
+Agos `(Filipino translation of Stream)` is a utility library that controls the data flow in functional manner. It consists one core type, Source and provides pure functions to create different types of Source.
+
+Source acts as an event and control provider. It propagates the events down the pipe and could provide a control outside.
 
 ## Example
 
 ```js
-import Stream from "agos";
+import { create, listen, pipe } from "agos";
 
 const interval = duration =>
-  new Stream(sink => {
+  create(control => {
+    let id = 0;
     let count = 0;
-    let id = null;
-    const play = () => {
-      if (id) return;
-      id = setInterval(() => sink.next(++count), duration);
-    };
-    const stop = () => {
-      if (!id) return;
+
+    const open = control.open(done => {
+      done();
+      id = setInterval(() => control.next(++count), duration);
+    });
+
+    const close = control.close(done => {
       clearInterval(id);
-      id = null;
-    };
-    play(); // trigger play, as soon as start method calls
-    return { play, stop };
+      id = 0;
+      count = 0;
+      done();
+    });
+
+    return { open, close }; // returns custom control
   });
 
-const control = interval(100).start({
-  next: count => console.log(count),
-  error: error => console.log(error),
-  complete: () => console.log("completed")
-}); // start the stream at time 0
+const { open, close } = pipe(
+  interval(100),
+  listen({
+    open: () => console.log("open"),
+    next: count => console.log(count),
+    error: error => console.log(error),
+    close: () => console.log("close")
+  })
+);
 
-setTimeout(() => control.stop(), 300); // fire stop method at time 300
-setTimeout(() => control.play(), 600); // fire play method at time 600
-setTimeout(() => control.stop(), 900); // fire stop method at time 900
+open(); // fire open method immediately
+
+setTimeout(() => close(), 300); // fire close method at time 300
+setTimeout(() => open(), 600); // fire open method at time 600
+setTimeout(() => close(), 900); // fire close method at time 900
+
+// logs
+// open   - immediate
+// 1      - 100ms
+// 2      - 200ms
+// close  - 300ms
+// open   - 600ms
+// 1      - 700ms
+// 2      - 800ms
+// close  - 900ms
 ```
 
-The `interval` function accepts a duration that indicates the millisecond count when to propagate, it then returns a Stream which has a [Producer](#producer) that dictates the logic of propagation. This Producer has a `play` method that runs the next method of [Sink](#sink), this where the propagation will happen, and a `stop` method that stops the interval.
+The `interval` function accepts a duration that indicates the millisecond count when to propagate, it then returns a Source that propagates a count through `control.next` upon open. Moreover `control.open` returns a function that start the propagation and `control.close` returns a function that stop the propagation. The `done` on both open and close indicates the propagation on open and close callback of the consumer that defines on `listen` method. Finally the source returns a custom control that could be use outside the source. On this example it has a custom control of open and close only but it could be any type of control.
 
 ## API
 
-- [of](#of)
-- [from](#from)
-- [empty](#empty)
-- [fail](#fail)
-- [never](#never)
-- [merge](#merge)
-- [mergeLatest](#mergeLatest)
-- [concat](#concat)
-- [map](#map)
-- [tap](#tap)
-- [filter](#filter)
-- [skipWhile](#skipWhile)
-- [slice](#slice)
-- [skip](#skip)
-- [take](#take)
-- [last](#last)
-- [takeWhile](#takeWhile)
-- [scan](#scan)
-- [chain](#chain)
-- [join](#join)
-- [start](#start)
+- Factory - function that creates Source. Below is the list of all available factories.
+
+  - [create](#create)
+  - [of](#of)
+  - [from](#from)
+  - [empty](#empty)
+  - [fail](#fail)
+  - [never](#never)
+  - [merge](#merge)
+  - [mergeLatest](#mergeLatest)
+  - [concat](#concat)
+
+- Operator - function that composes a Source, below is the list of all available operators.
+
+  - [map](#map)
+  - [tap](#tap)
+  - [filter](#filter)
+  - [skipWhile](#skipWhile)
+  - [slice](#slice)
+  - [skip](#skip)
+  - [take](#take)
+  - [last](#last)
+  - [takeWhile](#takeWhile)
+  - [scan](#scan)
+  - [flatMap](#[flatMap)
+  - [listen](#listen)
+
+### <a id="create"></a> `create(provider)`
+
+Creates a Source given a provider function.
+
+- Arguments:
+  - `provider` function that dictates the event propagatation and control provision.
+- Return: Source
 
 ### <a id="of"></a> `of(value)`
 
-Creates a Stream that emits the given argument, then completes.
+Creates a Source that emits the given argument, then completes.
 
 - Arguments:
   - `value` any value that will be propagated.
-- Return: Stream
+- Return: Source
 
 ---
 
 ### <a id="from"></a> `from(values)`
 
-Creates a Stream that emits each item on the given array, then completes.
+Creates a Source that emits each item on the given array, then completes.
 
 - Arguments:
   - `values` array of any where each item will be coming from.
-- Return: Stream
+- Return: Source
 
 ---
 
 ### <a id="empty"></a> `empty()`
 
-Creates a Stream that immediately completes upon started.
+Creates a Source that immediately completes.
 
-- Return: Stream
+- Return: Source
 
 ---
 
 ### <a id="fail"></a> `fail(error)`
 
-Creates a Stream that immediately emit an error upon started.
+Creates a Source that immediately emit an error.
 
 - Arguments:
   - `error`: value that will be propagated on sink error.
-- Return: Stream
+- Return: Source
 
 ---
 
 ### <a id="never"></a> `never()`
 
-Creates a Stream that does nothing.
+Creates a Source that does nothing.
 
-- Return: Stream
-
----
-
-### <a id="merge"></a> `merge(streams)`
-
-Creates a Stream that emits all values received from the given streams.
-
-- Arguments:
-  - `streams`: array of stream where all data will be coming from.
-- Return: Stream
-
-### <a id="mergeLatest"></a> `mergeLatest(streams)`
-
-Creates a Stream that emits all latest values received from the given streams.
-
-- Arguments:
-  - `streams`: array of stream where latest data will be coming from.
-- Return: Stream
+- Return: Source
 
 ---
 
-### <a id="concat"></a> `concat(streams)`
+### <a id="merge"></a> `merge(sources)`
 
-Creates a Stream that emits values received from the given streams, one after another completes.
+Creates a Source that emits all values received from the given sources.
 
 - Arguments:
-  - `streams`: array of stream where each data will be coming from.
-- Return: Stream
+  - `sources`: array of source where all data will be coming from.
+- Return: Source
+
+### <a id="mergeLatest"></a> `mergeLatest(sources)`
+
+Creates a Source that emits all latest values received from the given sources.
+
+- Arguments:
+  - `sourcecs`: array of sourcce where latest data will be coming from.
+- Return: Source
 
 ---
 
-### <a id="map"></a> `map(fn)`
+### <a id="concat"></a> `concat(sources)`
 
-Transform the received values through `fn` then propagates.
+Creates a Source that emits values received from the given sources, one after another completes.
 
 - Arguments:
-  - `fn`: function that transforms the received value.
-- Return: Stream
+  - `sources`: array of source where each data will be coming from.
+- Return: Source
+
+---
+
+### <a id="map"></a> `map(project)`
+
+Transform the received values through `project` function then propagates.
+
+- Arguments:
+  - `project`: function that transforms the received value.
+- Return: Source
 
 ---
 
@@ -152,27 +196,27 @@ Runs the `fn` whenever receives a value then propagate the value.
 
 - Arguments:
   - `fn`: function that runs whenever receives value.
-- Return: Stream
+- Return: Source
 
 ---
 
-### <a id="filter"></a> `filter(fn)`
+### <a id="filter"></a> `filter(predicate)`
 
-Propagate the values received whenever `fn` returns true.
+Propagate the values received whenever `predicate` function returns true.
 
 - Arguments:
-  - `fn`: function that indicates what it will propagate.
-- Return: Stream
+  - `predicate`: function that indicates what it will propagate.
+- Return: Source
 
 ---
 
-### <a id="skipWhile"></a> `skipWhile(fn)`
+### <a id="skipWhile"></a> `skipWhile(predicate)`
 
-Propagate the values received whenever `fn` returns false.
+Propagate the values received whenever `predicate` function returns false.
 
 - Arguments:
-  - `fn`: function that indicates when it will propagate.
-- Return: Stream
+  - `predicate`: function that indicates when it will propagate.
+- Return: Source
 
 ---
 
@@ -183,7 +227,7 @@ Slice the received valeus by an amount, this works like `slice` method of array 
 - Arguments:
   - `start`: number that indicates when it will propagate. Negative number indicate that it will offset from end, meaning an amount from end will not be propagated.
   - `end` number that indicates when it will propagate complete. Negative number indicate that it will offset from end, meaning an amount from end will be propagated then completes.
-- Return: Stream
+- Return: Source
 
 ---
 
@@ -193,7 +237,7 @@ Skips an amount of values then propagates, same as `slice(amount)`.
 
 - Arguments:
   - `amount`: number of count to skip.
-- Return: Stream
+- Return: Source
 
 ---
 
@@ -203,7 +247,7 @@ Propagate an amount of values then completes, same as `slice(0, amount)`.
 
 - Arguments:
   - `amount`: number of count to take.
-- Return: Stream
+- Return: Source
 
 ---
 
@@ -211,79 +255,49 @@ Propagate an amount of values then completes, same as `slice(0, amount)`.
 
 Store all values receives then propagates the last and then completes, Same as `slice(-1)`.
 
-- Return: Stream
+- Return: Source
 
 ---
 
-### <a id="takeWhile"></a> `takeWhile(fn)`
+### <a id="takeWhile"></a> `takeWhile(predicate)`
 
-Propagates data whenever `fn` returns true else this will complete.
+Propagates data whenever `predicate` function returns true else this will complete.
 
 - Arguments:
-  - `fn`: function that indicates when only to take values.
-- Return: Stream
+  - `predicate`: function that indicates when only to take values.
+- Return: Source
 
 ---
 
-### <a id="scan"></a> `scan(acc, initial)`
+### <a id="scan"></a> `scan(accumulator, initial)`
 
-Propagates the accumulated data of `acc` function.
+Propagates the accumulated data from the `accumulator` function.
 
 - Arguments:
-  - `acc`: function that receives `accumulate` and `current` and returns new `accumulate`.
-  - `initial`: value that will be received on `accumulate` on first propagation.
-- Return: Stream
+  - `accumulator`: function that receives accumulated data and current data then returns a new accumulated data.
+  - `initial`: value that will be received on accumulated on first propagation.
+- Return: Source
 
 ---
 
-### <a id="chain"></a> `chain(fn)`
+### <a id="flatMap"></a> `flatMap(project)`
 
-Run each values to a Stream then merge to the output.
+Run each values to a Source then merge to the output.
 
 - Arguments:
-  - `fn`: function that returns stream.
-- Return: Stream
+  - `project`: function that returns Source.
+- Return: Source
 
 ---
 
-### <a id="join"></a> `join(amount)`
+### <a id="listen"></a> `listen(consumer)`
 
-Flatten the streams into one stream.
-
-- Arguments:
-  - `amount`: optional number default to 1, that indicates number of count to flatten the stream.
-- Return: Stream
-
----
-
-### <a id="start"></a> `start(sink)`
-
-Starts the stream, this will invoke the producer function.
+Initialize the source and attach callback functions to be consumed by the source.
 
 - Arguments:
-  - [Sink](#sink)
-- Return: [Control](#control)
+  - `consumer`: object with open, next, error and close methods or just a function that acts a next.
+- Return: Any, returns the control provided by the source.
 
----
+## License
 
-## Types
-
-### Producer
-
-Producer is a function where propagation logic takes place.
-
-- Arguments:
-  - [Sink](#sink)
-- Return: [Control](#control)
-
-### Sink
-
-Sink is an object that has three methods:
-
-- `next`: fires the data propagation.
-- `complete`: propagate a completion. This will run the `stop` method of [Control](#control), closes the stream and any propagation will be ignored unless run another [start](#start).
-- `error`: propagate an error. This will run the `stop` method of [Control](#control), closes the stream and any propagation will be ignored unless run another [start](#start).
-
-### Control
-
-Control is an object that requires only a `stop` method, this usually cancel or clear subscription event like `clearInterval` or `removeListener`.
+[MIT](https://github.com/cedmandocdoc/agos/blob/master/LICENSE)

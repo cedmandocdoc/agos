@@ -1,61 +1,57 @@
-const { Stream, interval } = require("./utils");
+const { interval } = require("./utils");
+const { pipe, listen, mergeLatest, map } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
 describe("mergeLatest", () => {
-  it("should propagate data from latest values of the streams", () => {
+  it("should propagate all latest values from sources", () => {
     const expected = [[2, 1], [3, 1], [3, 2]];
 
+    const open = jest.fn();
     const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const complete = jest.fn();
     const error = jest.fn();
+    const close = jest.fn();
 
-    const [interval1, interval1Stop] = interval(100, 3);
-    const [interval2, interval2Stop] = interval(200, 2);
+    const control = pipe(
+      mergeLatest([interval(100, 3), interval(200, 2)]),
+      listen({ open, next, error, close })
+    );
 
-    Stream.mergeLatest([interval1, interval2]).start({
-      next,
-      complete,
-      error
-    });
+    control.open();
 
     jest.advanceTimersByTime(400);
+
+    expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
-    expect(complete).toHaveBeenCalledTimes(1);
     expect(error).toHaveBeenCalledTimes(0);
-    expect(interval1Stop).toHaveBeenCalledTimes(1);
-    expect(interval2Stop).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 
-  it("should propagate error when one stream propagates an error", () => {
-    const err = new Error();
+  it("should propagate error when any source propagates an error", () => {
     const expected = [[2, 1], [3, 1]];
+    const err = new Error();
 
+    const open = jest.fn();
     const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
-
-    const [interval1, interval1Stop] = interval(100, 3);
-    const [interval2, interval2Stop] = interval(200, 2);
-
-    Stream.mergeLatest([
-      interval1,
-      interval2.map(d => {
-        if (d === 2) throw err;
-        return d;
-      })
-    ]).start({
-      next,
-      complete,
-      error
+    const close = jest.fn();
+    const project = map(data => {
+      if (data === 2) throw err;
+      return data;
     });
+
+    const control = pipe(
+      mergeLatest([interval(100, 3), project(interval(200, 2))]),
+      listen({ open, next, error, close })
+    );
+
+    control.open();
 
     jest.advanceTimersByTime(400);
 
+    expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
-    expect(complete).toHaveBeenCalledTimes(0);
     expect(error).toHaveBeenCalledTimes(1);
-    expect(interval1Stop).toHaveBeenCalledTimes(1);
-    expect(interval2Stop).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });

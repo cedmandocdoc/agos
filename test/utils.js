@@ -1,19 +1,26 @@
-const Stream = require("../dist/agos.cjs");
+const { create } = require("../dist/agos.cjs");
 
-const interval = (duration, take = Infinity) => {
-  const stop = jest.fn(id => clearInterval(id));
-
-  const stream = new Stream(sink => {
+const interval = (duration, take = Infinity) =>
+  create(control => {
+    let id = 0;
     let count = 0;
-    const id = setInterval(() => {
-      sink.next(++count);
-      if (count >= take) sink.complete();
-    }, duration);
-    return { stop: () => stop(id) };
+
+    const open = control.open(done => {
+      done();
+      id = setInterval(() => {
+        control.next(++count);
+        if (count >= take) close();
+      }, duration);
+    });
+
+    const close = control.close(done => {
+      clearInterval(id);
+      id = 0;
+      count = 0;
+      done();
+    });
+
+    return { open, close, setCount: () => (count = 0) };
   });
 
-  return [stream, stop];
-};
-
-exports.Stream = Stream;
 exports.interval = interval;

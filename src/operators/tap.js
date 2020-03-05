@@ -1,9 +1,9 @@
 import map from "./map";
 
-const tap = fn =>
-  map(d => {
-    fn(d);
-    return d;
+const tap = project =>
+  map(data => {
+    project(data);
+    return data;
   });
 
 export default tap;

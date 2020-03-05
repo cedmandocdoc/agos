@@ -1,26 +1,23 @@
-const { Stream } = require("./utils");
+const { pipe, listen, never } = require("../dist/agos.cjs");
 
-describe("never method of Stream", () => {
-  it("should be a static method", () => {
-    expect(Stream.never).toBeInstanceOf(Function);
-  });
-
-  it("should create Stream", () => {
-    expect(Stream.never()).toBeInstanceOf(Stream);
-  });
-
-  it("should not propagate any data, complete or an error", () => {
+describe("never", () => {
+  it("should not propagate any data or an error", () => {
+    const open = jest.fn();
     const next = jest.fn();
-    const complete = jest.fn();
     const error = jest.fn();
-    Stream.never().start({
-      next,
-      complete,
-      error
-    });
+    const close = jest.fn();
 
+    const control = pipe(
+      never(),
+      listen({ open, next, error, close })
+    );
+
+    control.open();
+    control.close();
+
+    expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);
-    expect(complete).toHaveBeenCalledTimes(0);
     expect(error).toHaveBeenCalledTimes(0);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });

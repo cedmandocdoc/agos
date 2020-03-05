@@ -1,88 +1,64 @@
 const { interval } = require("./utils");
+const { pipe, listen, takeWhile } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
 describe("takeWhile", () => {
-  it("should propagate data when function argument returns true, then completes", () => {
+  it("should propagate data when period function returns true, then completes", () => {
     const received = [];
 
+    const open = jest.fn();
     const next = jest.fn(data => received.push(data));
-    const complete = jest.fn();
     const error = jest.fn();
-    const takeWhile = jest.fn(data => data < 3);
+    const close = jest.fn();
+    const period = jest.fn(data => data < 3);
 
-    const [base, baseStop] = interval(100, 3);
+    const control = pipe(
+      interval(100, 3),
+      takeWhile(period),
+      listen({ open, next, error, close })
+    );
 
-    base.takeWhile(takeWhile).start({
-      next,
-      complete,
-      error
-    });
+    control.open();
 
     jest.advanceTimersByTime(300);
 
+    expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
-    expect(complete).toHaveBeenCalledTimes(1);
     expect(error).toHaveBeenCalledTimes(0);
-    expect(takeWhile).toHaveBeenCalledTimes(3);
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(period).toHaveBeenCalledTimes(3);
     expect(received).toEqual([1, 2]);
-    expect(baseStop).toHaveBeenCalledTimes(1);
   });
 
-  it("should propagate error when function argument throws, no data propagation", () => {
-    const err = new Error();
-
-    const next = jest.fn();
-    const complete = jest.fn();
-    const error = jest.fn(data => expect(data).toEqual(err));
-    const takeWhile = jest.fn(() => {
-      throw err;
-    });
-
-    const [base, baseStop] = interval(100, 3);
-
-    base.takeWhile(takeWhile).start({
-      next,
-      complete,
-      error
-    });
-
-    jest.advanceTimersByTime(300);
-
-    expect(next).toHaveBeenCalledTimes(0);
-    expect(complete).toHaveBeenCalledTimes(0);
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(takeWhile).toHaveBeenCalledTimes(1);
-    expect(baseStop).toHaveBeenCalledTimes(1);
-  });
-
-  it("should propagate error when function argument throws, has data propagation", () => {
+  it("should propagate error when period argument throws", () => {
     const received = [];
     const err = new Error();
 
+    const open = jest.fn();
     const next = jest.fn(data => received.push(data));
-    const complete = jest.fn();
     const error = jest.fn(data => expect(data).toEqual(err));
-    const takeWhile = jest.fn(data => {
+    const close = jest.fn();
+    const period = jest.fn(data => {
       if (data === 2) throw err;
-      return data < 3;
+      return data < 4;
     });
 
-    const [base, baseStop] = interval(100, 3);
+    const control = pipe(
+      interval(100, 3),
+      takeWhile(period),
+      listen({ open, next, error, close })
+    );
 
-    base.takeWhile(takeWhile).start({
-      next,
-      complete,
-      error
-    });
+    control.open();
 
-    jest.advanceTimersByTime(300);
+    jest.advanceTimersByTime(400);
 
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(complete).toHaveBeenCalledTimes(0);
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(2);
     expect(error).toHaveBeenCalledTimes(1);
-    expect(takeWhile).toHaveBeenCalledTimes(2);
-    expect(received).toEqual([1]);
-    expect(baseStop).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(period).toHaveBeenCalledTimes(3);
+    expect(received).toEqual([1, 3]);
   });
 });

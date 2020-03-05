@@ -1,7 +1,7 @@
 {
   "name": "agos",
   "version": "0.2.1",
-  "description": "Small and fast reactive programming library",
+  "description": "JavaScript utility for data flow composition",
   "homepage": "https://github.com/cmandocdoc/agos",
   "main": "dist/agos.cjs.js",
   "module": "dist/agos.esm.js",

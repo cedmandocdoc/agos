@@ -1,5 +1,5 @@
 import filter from "./filter";
 
-const skipWhile = fn => filter(d => !fn(d));
+const skipWhile = predicate => filter(data => !predicate(data));
 
 export default skipWhile;

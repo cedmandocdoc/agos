@@ -16,9 +16,10 @@ class Filter {
   run(control) {
     return this.inner.run({
       open: control.open,
-      next: data => {
-        if (this.predicate(data)) control.next(data);
-      },
+      next: cb =>
+        control.next((dispatch, data) =>
+          cb(data => this.predicate(data) && dispatch(data), data)
+        ),
       error: control.error,
       close: control.close
     });

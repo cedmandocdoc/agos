@@ -13,16 +13,19 @@ class Scan {
     let seed = this.seed;
     return this.inner.run({
       open: control.open,
-      next: data => {
-        seed = this.accumulator(seed, data);
-        control.next(seed);
-      },
+      next: cb =>
+        control.next((dispatch, data) =>
+          cb(data => {
+            seed = this.accumulator(seed, data);
+            dispatch(seed);
+          }, data)
+        ),
       error: control.error,
       close: cb =>
-        control.close(done =>
+        control.close(dispatch =>
           cb(() => {
             seed = this.seed;
-            done();
+            dispatch();
           })
         )
     });

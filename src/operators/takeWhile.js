@@ -19,10 +19,13 @@ class TakeWhile {
     let close = noop;
     return this.inner.run({
       open: control.open,
-      next: data => {
-        if (!this.predicate(data)) close();
-        else control.next(data);
-      },
+      next: cb =>
+        control.next((dispatch, data) =>
+          cb(data => {
+            if (!this.predicate(data)) close();
+            else dispatch(data);
+          }, data)
+        ),
       error: control.error,
       close: cb => {
         close = control.close(cb);

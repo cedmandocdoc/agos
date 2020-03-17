@@ -7,39 +7,40 @@ class Source {
     let active = false;
 
     const open = cb =>
-      control.open(done => {
+      control.open(dispatch => {
         try {
           if (active) return;
           active = true;
-          cb(done);
+          cb(dispatch);
         } catch (err) {
           error(err);
         }
       });
 
-    const next = data => {
-      if (!active) return;
-      try {
-        control.next(data);
-      } catch (err) {
-        error(err);
-      }
-    };
+    const next = cb =>
+      control.next((dispatch, data) => {
+        if (!active) return;
+        try {
+          cb(dispatch, data);
+        } catch (err) {
+          error(err);
+        }
+      });
 
-    const error = control.error;
+    const error = control.error((dispatch, error) => dispatch(error));
 
     const close = cb =>
-      control.close(done => {
+      control.close(dispatch => {
         try {
           if (!active) return;
           active = false;
-          cb(done);
+          cb(dispatch);
         } catch (err) {
           error(err);
         }
       });
 
-    return this.provider({ open, next, error, close });
+    return this.provider({ open, next, error: control.error, close });
   }
 }
 

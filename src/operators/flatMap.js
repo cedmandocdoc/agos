@@ -17,38 +17,41 @@ class FlatMap {
 
     let inprogress = [];
 
-    const next = index => data => {
-      if (index >= this.projects.length) control.next(data);
-      else {
-        const source = this.projects[index](data);
-        let open = noop;
-        source.run({
-          open: cb => {
-            open = () =>
-              cb(() => {
-                inprogress++;
-              });
-            return open;
-          },
-          next: next(index + 1),
-          error: control.error,
-          close: cb => {
-            callbacks.close.push(() => {
-              cb(() => {
-                if (--inprogress <= 0) close();
-              });
+    const next = index => cb =>
+      control.next((dispatch, data) =>
+        cb(data => {
+          if (index >= this.projects.length) dispatch(data);
+          else {
+            const source = this.projects[index](data);
+            let open = noop;
+            source.run({
+              open: cb => {
+                open = () =>
+                  cb(() => {
+                    inprogress++;
+                  });
+                return open;
+              },
+              next: next(index + 1),
+              error: control.error,
+              close: cb => {
+                callbacks.close.push(() => {
+                  cb(() => {
+                    if (--inprogress <= 0) close();
+                  });
+                });
+                return callbacks.close[callbacks.close.length - 1];
+              }
             });
-            return callbacks.close[callbacks.close.length - 1];
+            open();
           }
-        });
-        open();
-      }
-    };
+        }, data)
+      );
 
-    const close = control.close(done => {
+    const close = control.close(dispatch => {
       if (inprogress <= 0) {
         inprogress = [];
-        done();
+        dispatch();
       } else {
         for (let index = 0; index < callbacks.close.length; index++) {
           callbacks.close[index]();

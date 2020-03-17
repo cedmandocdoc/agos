@@ -25,16 +25,22 @@ const interval = duration =>
     let id = 0;
     let count = 0;
 
-    const open = control.open(done => {
-      done();
-      id = setInterval(() => control.next(++count), duration);
+    const open = control.open(dispatch => {
+      dispatch(); // open dispatch
+      id = setInterval(() => {
+        next(++count); // propagate count on next
+      }, duration);
     });
 
-    const close = control.close(done => {
+    const next = control.next((dispatch, data) => dispatch(data)); // next dispatch
+
+    const error = control.error((dispatch, error) => dispatch(error)); // error dispatch
+
+    const close = control.close(dispatch => {
       clearInterval(id);
       id = 0;
       count = 0;
-      done();
+      dispatch(); // close dispatch
     });
 
     return { open, close }; // returns custom control
@@ -43,10 +49,10 @@ const interval = duration =>
 const { open, close } = pipe(
   interval(100),
   listen({
-    open: () => console.log("open"),
-    next: count => console.log(count),
-    error: error => console.log(error),
-    close: () => console.log("close")
+    open: () => console.log("open"), // called upon dispatch of open
+    next: count => console.log(count), // called upon dispatch of next
+    error: error => console.log(error), // called upon dispatch of error
+    close: () => console.log("close") // called upon dispatch of close
   })
 );
 
@@ -67,7 +73,7 @@ setTimeout(() => close(), 900); // fire close method at time 900
 // close  - 900ms
 ```
 
-The `interval` function accepts a duration that indicates the millisecond count when to propagate, it then returns a Source that propagates a count through `control.next` upon open. Moreover `control.open` returns a function that start the propagation and `control.close` returns a function that stop the propagation. The `done` on both open and close indicates the propagation on open and close callback of the consumer that defines on `listen` method. Finally the source returns a custom control that could be use outside the source. On this example it has a custom control of open and close only but it could be any type of control.
+The `interval` function accepts a duration that indicates the millisecond count when to propagate, it then returns a Source that propagates a count through `next` upon open. Moreover, `control.open` returns a function that start the propagation and `control.close` returns a function that stop the propagation. The `dispatch` on both open and close indicates the propagation on open and close callback of the consumer that defines on `listen` method. Furthermore, `next` and `error` are both unary function, their first parameter is a dispatch method that dictates the propgation to the callback of consumer and their second parameter is the data and error respectively. Finally the source returns a custom control that could be use outside the source, on this example it has a custom control of open and close only but it could be any type of control.
 
 ## API
 

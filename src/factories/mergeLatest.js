@@ -11,18 +11,21 @@ class MergeLatest {
     let values = [];
     return this.source.run({
       open: control.open,
-      next: (data, index) => {
-        values[index] = data;
-        if (!seen[index]) seen[index] = true;
-        if (seen.length === this.length) control.next(values);
-      },
+      next: cb =>
+        control.next((dispatch, data) =>
+          cb(([data, index]) => {
+            values[index] = data;
+            if (!seen[index]) seen[index] = true;
+            if (seen.length === this.length) dispatch(values);
+          }, data)
+        ),
       error: control.error,
       close: cb =>
-        control.close(done =>
+        control.close(dispatch =>
           cb(() => {
             seen = [];
             values = [];
-            done();
+            dispatch();
           })
         )
     });

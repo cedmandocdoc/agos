@@ -5,9 +5,13 @@ const listen = sink => source => {
     cb(sink.open || noop);
   };
 
-  const next = typeof sink === "function" ? sink : sink.next || noop;
+  const next = cb => data => {
+    cb(typeof sink === "function" ? sink : sink.next || noop, data);
+  };
 
-  const error = sink.error || noop;
+  const error = cb => error => {
+    cb(sink.error || noop, error);
+  };
 
   const close = cb => () => {
     cb(sink.close || noop);

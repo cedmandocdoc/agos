@@ -13,9 +13,10 @@ class Map {
   run(control) {
     return this.inner.run({
       open: control.open,
-      next: data => {
-        control.next(this.project(data));
-      },
+      next: cb =>
+        control.next((dispatch, data) =>
+          cb(data => dispatch(this.project(data)), data)
+        ),
       error: control.error,
       close: control.close
     });

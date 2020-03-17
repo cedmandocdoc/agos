@@ -2,11 +2,11 @@ import create from "./create";
 
 const empty = () =>
   create(control => {
-    const open = control.open(done => {
-      done();
+    const open = control.open(dispatch => {
+      dispatch();
       close();
     });
-    const close = control.close(done => done());
+    const close = control.close(dispatch => dispatch());
     return { open, close };
   });
 

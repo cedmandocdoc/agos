@@ -5,19 +5,23 @@ const interval = (duration, take = Infinity) =>
     let id = 0;
     let count = 0;
 
-    const open = control.open(done => {
-      done();
+    const open = control.open(dispatch => {
+      dispatch();
       id = setInterval(() => {
-        control.next(++count);
+        next(++count);
         if (count >= take) close();
       }, duration);
     });
 
-    const close = control.close(done => {
+    const next = control.next((dispatch, data) => {
+      dispatch(data);
+    });
+
+    const close = control.close(dispatch => {
       clearInterval(id);
       id = 0;
       count = 0;
-      done();
+      dispatch();
     });
 
     return { open, close, setCount: () => (count = 0) };

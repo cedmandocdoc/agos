@@ -21,21 +21,26 @@ class Slice {
     if (this.start < 0 || this.end < 0) {
       // future sink
       let values = [];
+
+      const next = control.next((dispatch, data) => dispatch(data));
+
       return this.inner.run({
         open: control.open,
-        next: data => {
+        next: cb =>
+          control.next((_, data) => cb(data => values.push(data), data)),
+        a: data => {
           values.push(data);
         },
         error: control.error,
         close: cb =>
-          control.close(done =>
+          control.close(dispatch =>
             cb(() => {
               const sliced = values.slice(this.start, this.end);
               for (let index = 0; index < sliced.length; index++) {
-                control.next(sliced[index]);
+                next(sliced[index]);
               }
               values = [];
-              done();
+              dispatch();
             })
           )
       });
@@ -45,17 +50,20 @@ class Slice {
     let close = noop;
     return this.inner.run({
       open: control.open,
-      next: data => {
-        count++;
-        count > this.start && control.next(data);
-        count >= this.end && close();
-      },
+      next: cb =>
+        control.next((dispatch, data) =>
+          cb(data => {
+            count++;
+            count > this.start && dispatch(data);
+            count >= this.end && close();
+          }, data)
+        ),
       error: control.error,
       close: cb => {
-        close = control.close(done =>
+        close = control.close(dispatch =>
           cb(() => {
             count = 0;
-            done();
+            dispatch();
           })
         );
         return close;

@@ -5,7 +5,7 @@ jest.useFakeTimers();
 
 describe("merge", () => {
   it("should propagate all values from sources", () => {
-    const expected = [1, 2, 1, 3, 2];
+    const expected = [[1, 0], [2, 0], [1, 1], [3, 0], [2, 1]];
 
     const open = jest.fn();
     const next = jest.fn(data => expect(data).toEqual(expected.shift()));
@@ -28,7 +28,7 @@ describe("merge", () => {
   });
 
   it("should propagate error when any source propagates an error", () => {
-    const expected = [1, 2, 3];
+    const expected = [[1, 0], [2, 0], [3, 0]];
     const err = new Error();
 
     const open = jest.fn();

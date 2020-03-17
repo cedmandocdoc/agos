@@ -2,11 +2,11 @@ import create from "./create";
 
 const fail = error =>
   create(control => {
-    const open = control.open(done => {
-      done();
+    const open = control.open(dispatch => {
+      dispatch();
       throw error;
     });
-    const close = control.close(done => done());
+    const close = control.close(dispatch => dispatch());
     return { open, close };
   });
 

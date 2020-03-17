@@ -9,17 +9,17 @@ class Merge {
     let opened = false;
     let closed = [];
 
-    const open = control.open(done => {
+    const open = control.open(dispatch => {
       for (let index = 0; index < callbacks.open.length; index++) {
-        callbacks.open[index](done);
+        callbacks.open[index](dispatch);
       }
     });
 
-    const close = control.close(done => {
+    const close = control.close(dispatch => {
       if (closed.length === callbacks.close.length) {
         opened = false;
         closed = [];
-        done();
+        dispatch();
       } else {
         for (let index = 0; index < callbacks.close.length; index++) {
           callbacks.close[index]();
@@ -31,19 +31,20 @@ class Merge {
       const source = this.sources[index];
       source.run({
         open: cb => {
-          callbacks.open[index] = done => {
+          callbacks.open[index] = dispatch => {
             cb(() => {
               if (!opened) {
                 opened = true;
-                done();
+                dispatch();
               }
             });
           };
           return open;
         },
-        next: data => {
-          control.next(data, index);
-        },
+        next: cb =>
+          control.next((dispatch, data) =>
+            cb(data => dispatch([data, index]), data)
+          ),
         error: control.error,
         close: cb => {
           callbacks.close[index] = () => {

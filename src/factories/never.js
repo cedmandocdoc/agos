@@ -2,8 +2,8 @@ import create from "./create";
 
 const never = () =>
   create(control => {
-    const open = control.open(done => done());
-    const close = control.close(done => done());
+    const open = control.open(dispatch => dispatch());
+    const close = control.close(dispatch => dispatch());
     return { open, close };
   });
 

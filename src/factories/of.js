@@ -2,12 +2,14 @@ import create from "./create";
 
 const of = data =>
   create(control => {
-    const open = control.open(done => {
-      done();
-      control.next(data);
+    const open = control.open(dispatch => {
+      dispatch();
+      next(data);
       close();
     });
-    const close = control.close(done => done());
+
+    const next = control.next((dispatch, data) => dispatch(data));
+    const close = control.close(dispatch => dispatch());
     return { open, close };
   });
 

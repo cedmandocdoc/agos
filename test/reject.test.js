@@ -1,24 +1,27 @@
-const { pipe, listen, empty, never, teardown } = require("../dist/agos.cjs");
+const { pipe, listen, reject, never, teardown } = require("../dist/agos.cjs");
 
-describe("empty", () => {
-  it("should propagate completion", () => {
+describe("reject", () => {
+  it("should propagate error", () => {
+    const error = new Error();
+
     const open = jest.fn();
     const next = jest.fn();
-    const fail = jest.fn();
+    const fail = jest.fn(e => expect(e).toEqual(error));
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
     pipe(
-      empty(),
+      reject(error),
       listen(open, next, fail, done)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);
-    expect(fail).toHaveBeenCalledTimes(0);
+    expect(fail).toHaveBeenCalledTimes(1);
     expect(done).toHaveBeenCalledTimes(1);
   });
 
   it("should propagate cancellation on open", () => {
+    const error = new Error();
     const abort = teardown(never());
 
     const open = jest.fn(() => abort.run());
@@ -27,7 +30,7 @@ describe("empty", () => {
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
     pipe(
-      empty(),
+      reject(error),
       listen(open, next, fail, done, abort)
     );
 
@@ -38,36 +41,38 @@ describe("empty", () => {
   });
 
   it("should not propagate cancellation before open", () => {
+    const error = new Error();
     const abort = teardown(never());
 
     const open = jest.fn();
     const next = jest.fn();
-    const fail = jest.fn();
+    const fail = jest.fn(e => expect(e).toEqual(error));
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
     abort.run();
 
     pipe(
-      empty(),
+      reject(error),
       listen(open, next, fail, done, abort)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);
-    expect(fail).toHaveBeenCalledTimes(0);
+    expect(fail).toHaveBeenCalledTimes(1);
     expect(done).toHaveBeenCalledTimes(1);
   });
 
   it("should not propagate cancellation after open", () => {
+    const error = new Error();
     const abort = teardown(never());
 
     const open = jest.fn();
     const next = jest.fn();
-    const fail = jest.fn();
+    const fail = jest.fn(e => expect(e).toEqual(error));
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
     pipe(
-      empty(),
+      reject(error),
       listen(open, next, fail, done, abort)
     );
 
@@ -75,7 +80,7 @@ describe("empty", () => {
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);
-    expect(fail).toHaveBeenCalledTimes(0);
+    expect(fail).toHaveBeenCalledTimes(1);
     expect(done).toHaveBeenCalledTimes(1);
   });
 });

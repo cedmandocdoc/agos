@@ -1,25 +1,23 @@
 class Map {
-  constructor(inner, project) {
-    this.inner = inner;
+  constructor(source, project) {
+    this.source = source;
     this.project = project;
   }
 
   static join(source, project) {
     return source instanceof Map
-      ? new Map(source.inner, data => project(source.project(data)))
+      ? new Map(source.source, value => project(source.project(value)))
       : new Map(source, project);
   }
 
-  run(control) {
-    return this.inner.run({
-      open: control.open,
-      next: cb =>
-        control.next((dispatch, data) =>
-          cb(data => dispatch(this.project(data)), data)
-        ),
-      error: control.error,
-      close: control.close
-    });
+  listen(open, next, fail, done, talkback) {
+    this.source.listen(
+      open,
+      value => next(this.project(value)),
+      fail,
+      done,
+      talkback
+    );
   }
 }
 

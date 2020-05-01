@@ -1,37 +1,33 @@
-import { noop } from "../utils";
+import teardown from "./teardown";
 
 class TakeWhile {
-  constructor(inner, predicate) {
-    this.inner = inner;
+  constructor(source, predicate) {
+    this.source = source;
     this.predicate = predicate;
   }
 
   static join(source, predicate) {
     return source instanceof TakeWhile
       ? new TakeWhile(
-          source.inner,
-          data => source.predicate(data) || predicate(data)
+          source.source,
+          value => source.predicate(value) || predicate(value)
         )
       : new TakeWhile(source, predicate);
   }
 
-  run(control) {
-    let close = noop;
-    return this.inner.run({
-      open: control.open,
-      next: cb =>
-        control.next((dispatch, data) =>
-          cb(data => {
-            if (!this.predicate(data)) close();
-            else dispatch(data);
-          }, data)
-        ),
-      error: control.error,
-      close: cb => {
-        close = control.close(cb);
-        return close;
-      }
-    });
+  listen(open, next, fail, done, talkback) {
+    const abort = teardown(talkback);
+
+    this.source.listen(
+      open,
+      value => {
+        if (!this.predicate(value)) return abort.run();
+        next(value);
+      },
+      fail,
+      done,
+      abort
+    );
   }
 }
 

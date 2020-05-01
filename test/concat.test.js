@@ -8,49 +8,45 @@ describe("concat", () => {
     const expected = [1, 2, 3, 1, 2];
 
     const open = jest.fn();
-    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const error = jest.fn();
-    const close = jest.fn();
+    const next = jest.fn(value => expect(value).toEqual(expected.shift()));
+    const fail = jest.fn();
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    const control = pipe(
+    pipe(
       concat([interval(100, 3), interval(200, 2)]),
-      listen({ open, next, error, close })
+      listen(open, next, fail, done)
     );
-
-    control.open();
 
     jest.advanceTimersByTime(700);
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(5);
-    expect(error).toHaveBeenCalledTimes(0);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fail).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(1);
   });
 
   it("should propagate error when any source propagates an error", () => {
     const expected = [1, 2, 3];
-    const err = new Error();
+    const error = new Error();
 
     const open = jest.fn();
-    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const error = jest.fn(data => expect(data).toEqual(err));
-    const close = jest.fn();
+    const next = jest.fn(value => expect(value).toEqual(expected.shift()));
+    const fail = jest.fn(value => expect(value).toEqual(error));
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
     const project = map(() => {
-      throw err;
+      throw error;
     });
 
-    const control = pipe(
+    pipe(
       concat([interval(100, 3), project(interval(200, 2))]),
-      listen({ open, next, error, close })
+      listen(open, next, fail, done)
     );
-
-    control.open();
 
     jest.advanceTimersByTime(700);
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
-    expect(error).toHaveBeenCalledTimes(2);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fail).toHaveBeenCalledTimes(2);
+    expect(done).toHaveBeenCalledTimes(1);
   });
 });

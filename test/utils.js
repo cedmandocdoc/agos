@@ -1,30 +1,33 @@
-const { create } = require("../dist/agos.cjs");
+const { create, never, CANCEL } = require("../dist/agos.cjs");
+
+const noop = () => {};
 
 const interval = (duration, take = Infinity) =>
-  create(control => {
-    let id = 0;
+  create((open, next, fail, done, talkback) => {
     let count = 0;
 
-    const open = control.open(dispatch => {
-      dispatch();
-      id = setInterval(() => {
-        next(++count);
-        if (count >= take) close();
-      }, duration);
-    });
+    const id = setInterval(() => {
+      next(++count);
+      if (count >= take) {
+        clearInterval(id);
+        done(false);
+      }
+    }, duration);
 
-    const next = control.next((dispatch, data) => {
-      dispatch(data);
-    });
-
-    const close = control.close(dispatch => {
-      clearInterval(id);
-      id = 0;
-      count = 0;
-      dispatch();
-    });
-
-    return { open, close, setCount: () => (count = 0) };
+    talkback.listen(
+      noop,
+      value => {
+        if (value === CANCEL) {
+          clearInterval(id);
+          done(true);
+        }
+      },
+      noop,
+      noop,
+      never
+    );
+    open();
   });
 
+exports.noop = noop;
 exports.interval = interval;

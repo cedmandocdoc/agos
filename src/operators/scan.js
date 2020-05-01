@@ -1,6 +1,6 @@
 class Scan {
-  constructor(inner, accumulator, seed) {
-    this.inner = inner;
+  constructor(source, accumulator, seed) {
+    this.source = source;
     this.accumulator = accumulator;
     this.seed = seed;
   }
@@ -9,26 +9,18 @@ class Scan {
     return new Scan(source, accumulator, seed);
   }
 
-  run(control) {
+  listen(open, next, fail, done, talkback) {
     let seed = this.seed;
-    return this.inner.run({
-      open: control.open,
-      next: cb =>
-        control.next((dispatch, data) =>
-          cb(data => {
-            seed = this.accumulator(seed, data);
-            dispatch(seed);
-          }, data)
-        ),
-      error: control.error,
-      close: cb =>
-        control.close(dispatch =>
-          cb(() => {
-            seed = this.seed;
-            dispatch();
-          })
-        )
-    });
+    this.source.listen(
+      open,
+      value => {
+        seed = this.accumulator(seed, value);
+        next(seed);
+      },
+      fail,
+      done,
+      talkback
+    );
   }
 }
 

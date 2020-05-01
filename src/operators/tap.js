@@ -1,9 +1,9 @@
 import map from "./map";
 
 const tap = project =>
-  map(data => {
-    project(data);
-    return data;
+  map(value => {
+    project(value);
+    return value;
   });
 
 export default tap;

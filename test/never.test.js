@@ -1,23 +1,20 @@
 const { pipe, listen, never } = require("../dist/agos.cjs");
 
 describe("never", () => {
-  it("should not propagate any data or an error", () => {
+  it("should not propagate any", () => {
     const open = jest.fn();
     const next = jest.fn();
-    const error = jest.fn();
-    const close = jest.fn();
+    const fail = jest.fn();
+    const done = jest.fn();
 
-    const control = pipe(
+    pipe(
       never(),
-      listen({ open, next, error, close })
+      listen(open, next, fail, done)
     );
 
-    control.open();
-    control.close();
-
-    expect(open).toHaveBeenCalledTimes(1);
+    expect(open).toHaveBeenCalledTimes(0);
     expect(next).toHaveBeenCalledTimes(0);
-    expect(error).toHaveBeenCalledTimes(0);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fail).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(0);
   });
 });

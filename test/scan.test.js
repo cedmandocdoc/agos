@@ -4,59 +4,55 @@ const { pipe, listen, scan } = require("../dist/agos.cjs");
 jest.useFakeTimers();
 
 describe("scan", () => {
-  it("should accumulate data through accumulator function then propagates", () => {
+  it("should accumulate values through accumulator function then propagate", () => {
     const expected = [1, 3, 6];
 
     const open = jest.fn();
-    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const error = jest.fn();
-    const close = jest.fn();
+    const next = jest.fn(value => expect(value).toEqual(expected.shift()));
+    const fail = jest.fn();
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
     const accumulator = jest.fn((acc, curr) => acc + curr);
 
-    const control = pipe(
+    pipe(
       interval(100, 3),
       scan(accumulator, 0),
-      listen({ open, next, error, close })
+      listen(open, next, fail, done)
     );
-
-    control.open();
 
     jest.advanceTimersByTime(300);
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
-    expect(error).toHaveBeenCalledTimes(0);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fail).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(1);
     expect(accumulator).toHaveBeenCalledTimes(3);
   });
 
   it("should propagate error when accumulator function throws", () => {
     const expected = [1, 3, 6];
-    const err = new Error();
+    const error = new Error();
 
     const open = jest.fn();
-    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const error = jest.fn();
-    const close = jest.fn();
+    const next = jest.fn(value => expect(value).toEqual(expected.shift()));
+    const fail = jest.fn(value => expect(value).toEqual(error));
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
     const accumulator = jest.fn((acc, curr) => {
-      if (curr === 3) throw err;
+      if (curr === 3) throw error;
       return acc + curr;
     });
 
-    const control = pipe(
+    pipe(
       interval(100, 3),
       scan(accumulator, 0),
-      listen({ open, next, error, close })
+      listen(open, next, fail, done)
     );
-
-    control.open();
 
     jest.advanceTimersByTime(300);
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fail).toHaveBeenCalledTimes(1);
+    expect(done).toHaveBeenCalledTimes(1);
     expect(accumulator).toHaveBeenCalledTimes(3);
   });
 });

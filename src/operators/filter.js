@@ -1,28 +1,26 @@
 class Filter {
-  constructor(inner, predicate) {
-    this.inner = inner;
+  constructor(source, predicate) {
+    this.source = source;
     this.predicate = predicate;
   }
 
   static join(source, predicate) {
     return source instanceof Filter
       ? new Filter(
-          source.inner,
-          data => source.predicate(data) && predicate(data)
+          source.source,
+          value => source.predicate(value) && predicate(value)
         )
       : new Filter(source, predicate);
   }
 
-  run(control) {
-    return this.inner.run({
-      open: control.open,
-      next: cb =>
-        control.next((dispatch, data) =>
-          cb(data => this.predicate(data) && dispatch(data), data)
-        ),
-      error: control.error,
-      close: control.close
-    });
+  listen(open, next, fail, done, talkback) {
+    this.source.listen(
+      open,
+      value => this.predicate(value) && next(value),
+      fail,
+      done,
+      talkback
+    );
   }
 }
 

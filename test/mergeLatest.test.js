@@ -8,50 +8,46 @@ describe("mergeLatest", () => {
     const expected = [[2, 1], [3, 1], [3, 2]];
 
     const open = jest.fn();
-    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const error = jest.fn();
-    const close = jest.fn();
+    const next = jest.fn(value => expect(value).toEqual(expected.shift()));
+    const fail = jest.fn();
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    const control = pipe(
+    pipe(
       mergeLatest([interval(100, 3), interval(200, 2)]),
-      listen({ open, next, error, close })
+      listen(open, next, fail, done)
     );
-
-    control.open();
 
     jest.advanceTimersByTime(400);
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
-    expect(error).toHaveBeenCalledTimes(0);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fail).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(1);
   });
 
   it("should propagate error when any source propagates an error", () => {
     const expected = [[2, 1], [3, 1]];
-    const err = new Error();
+    const error = new Error();
 
     const open = jest.fn();
-    const next = jest.fn(data => expect(data).toEqual(expected.shift()));
-    const error = jest.fn(data => expect(data).toEqual(err));
-    const close = jest.fn();
-    const project = map(data => {
-      if (data === 2) throw err;
-      return data;
+    const next = jest.fn(value => expect(value).toEqual(expected.shift()));
+    const fail = jest.fn(value => expect(value).toEqual([error, 1]));
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
+    const project = map(value => {
+      if (value === 2) throw error;
+      return value;
     });
 
-    const control = pipe(
+    pipe(
       mergeLatest([interval(100, 3), project(interval(200, 2))]),
-      listen({ open, next, error, close })
+      listen(open, next, fail, done)
     );
-
-    control.open();
 
     jest.advanceTimersByTime(400);
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fail).toHaveBeenCalledTimes(1);
+    expect(done).toHaveBeenCalledTimes(1);
   });
 });

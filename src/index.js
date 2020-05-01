@@ -1,48 +1,52 @@
-import create from "./factories/create";
-import of from "./factories/of";
-import from from "./factories/from";
-import empty from "./factories/empty";
-import never from "./factories/never";
-import fail from "./factories/fail";
-import merge from "./factories/merge";
-import mergeLatest from "./factories/mergeLatest";
-import concat from "./factories/concat";
-
-import map from "./operators/map";
-import tap from "./operators/tap";
+import chain from "./operators/chain";
+import concat from "./operators/concat";
+import create from "./operators/create";
+import empty from "./operators/empty";
 import filter from "./operators/filter";
+import fromArray from "./operators/fromArray";
+import join from "./operators/join";
+import last from "./operators/last";
+import listen from "./operators/listen";
+import map from "./operators/map";
+import merge from "./operators/merge";
+import mergeLatest from "./operators/mergeLatest";
+import never from "./operators/never";
+import of from "./operators/of";
+import reject from "./operators/reject";
+import scan from "./operators/scan";
+import skip from "./operators/skip";
 import skipWhile from "./operators/skipWhile";
 import slice from "./operators/slice";
 import take from "./operators/take";
-import skip from "./operators/skip";
-import last from "./operators/last";
-import scan from "./operators/scan";
 import takeWhile from "./operators/takeWhile";
-import flatMap from "./operators/flatMap";
-import listen from "./operators/listen";
+import tap from "./operators/tap";
+import teardown from "./operators/teardown";
 
 export {
+  concat,
   create,
-  of,
-  from,
   empty,
-  never,
-  fail,
+  filter,
+  chain,
+  fromArray,
+  join,
+  last,
+  listen,
+  map,
   merge,
   mergeLatest,
-  concat,
-  map,
-  tap,
-  filter,
+  never,
+  of,
+  reject,
+  scan,
+  skip,
   skipWhile,
   slice,
   take,
-  skip,
-  last,
-  scan,
   takeWhile,
-  flatMap,
-  listen
+  tap,
+  teardown
 };
 
+export { CANCEL } from "./constants";
 export { pipe } from "./utils";

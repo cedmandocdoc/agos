@@ -11,69 +11,66 @@ JavaScript utility for data flow composition.
 
 ## Overview
 
-Agos `(Filipino translation of Stream)` is a utility library that controls the data flow in functional manner. It consists one core type, Source and provides pure functions to create different types of Source.
-
-Source acts as an event and control provider. It propagates the events down the pipe and could provide a control outside.
+Agos `(Filipino translation of Stream)` is a utility library that controls the data flow in functional manner. It consists one core type, Source, which implements a run method with an open, next, fail, done callback function and a talkback which is another Source that can be listened.
 
 ## Example
 
 ```js
-import { create, listen, pipe } from "agos";
+import { create, never, listen, pipe, CANCEL } from "agos";
 
-const interval = duration =>
-  create(control => {
-    let id = 0;
-    let count = 0;
+const noop = () => {};
 
-    const open = control.open(dispatch => {
-      dispatch(); // open dispatch
-      id = setInterval(() => {
-        next(++count); // propagate count on next
-      }, duration);
-    });
+// main source
+const interval = create((open, next, fail, done, talkback) => {
+  let count = 0;
+  const id = setInterval(() => next(++count), 100);
 
-    const next = control.next((dispatch, data) => dispatch(data)); // next dispatch
+  // listen for cancellation
+  talkback.listen(
+    noop,
+    (value) => {
+      if (value === CANCEL) {
+        clearInterval(id);
+        done(true);
+      }
+    },
+    noop,
+    noop,
+    never
+  );
+  open();
+});
 
-    const error = control.error((dispatch, error) => dispatch(error)); // error dispatch
+// cancel source
+const cancel = create((open, next, fail, done) => {
+  open();
+  setTimeout(() => {
+    // propagates CANCEL
+    next(CANCEL);
+    done(false);
+  }, 500);
+});
 
-    const close = control.close(dispatch => {
-      clearInterval(id);
-      id = 0;
-      count = 0;
-      dispatch(); // close dispatch
-    });
-
-    return { open, close }; // returns custom control
-  });
-
-const { open, close } = pipe(
-  interval(100),
-  listen({
-    open: () => console.log("open"), // called upon dispatch of open
-    next: count => console.log(count), // called upon dispatch of next
-    error: error => console.log(error), // called upon dispatch of error
-    close: () => console.log("close") // called upon dispatch of close
-  })
+// listen to main source
+pipe(
+  interval,
+  listen(
+    () => console.log("open"),
+    (value) => console.log(value),
+    (error) => console.log(error),
+    (cancelled) => console.log("done", "cancelled", cancelled),
+    cancel // provide the cancel source
+  )
 );
 
-open(); // fire open method immediately
-
-setTimeout(() => close(), 300); // fire close method at time 300
-setTimeout(() => open(), 600); // fire open method at time 600
-setTimeout(() => close(), 900); // fire close method at time 900
-
 // logs
-// open   - immediate
-// 1      - 100ms
-// 2      - 200ms
-// close  - 300ms
-// open   - 600ms
-// 1      - 700ms
-// 2      - 800ms
-// close  - 900ms
+// open
+// 1
+// 2
+// 3
+// 4
+// done cancelled true
 ```
-
-The `interval` function accepts a duration that indicates the millisecond count when to propagate, it then returns a Source that propagates a count through `next` upon open. Moreover, `control.open` returns a function that start the propagation and `control.close` returns a function that stop the propagation. The `dispatch` on both open and close indicates the propagation on open and close callback of the consumer that defines on `listen` method. Furthermore, `next` and `error` are both unary function, their first parameter is a dispatch method that dictates the propgation to the callback of consumer and their second parameter is the data and error respectively. Finally the source returns a custom control that could be use outside the source, on this example it has a custom control of open and close only but it could be any type of control.
 
 ## API
 
@@ -81,9 +78,9 @@ The `interval` function accepts a duration that indicates the millisecond count 
 
   - [create](#create)
   - [of](#of)
-  - [from](#from)
+  - [fromArray](#fromArray)
   - [empty](#empty)
-  - [fail](#fail)
+  - [reject](#reject)
   - [never](#never)
   - [merge](#merge)
   - [mergeLatest](#mergeLatest)
@@ -101,7 +98,8 @@ The `interval` function accepts a duration that indicates the millisecond count 
   - [last](#last)
   - [takeWhile](#takeWhile)
   - [scan](#scan)
-  - [flatMap](#[flatMap)
+  - [join](#[join)
+  - [chain](#[chain)
   - [listen](#listen)
 
 ### <a id="create"></a> `create(provider)`
@@ -122,7 +120,7 @@ Creates a Source that emits the given argument, then completes.
 
 ---
 
-### <a id="from"></a> `from(values)`
+### <a id="fromArray"></a> `fromArray(values)`
 
 Creates a Source that emits each item on the given array, then completes.
 
@@ -140,7 +138,7 @@ Creates a Source that immediately completes.
 
 ---
 
-### <a id="fail"></a> `fail(error)`
+### <a id="reject"></a> `reject(error)`
 
 Creates a Source that immediately emit an error.
 
@@ -286,9 +284,17 @@ Propagates the accumulated data from the `accumulator` function.
 
 ---
 
-### <a id="flatMap"></a> `flatMap(project)`
+### <a id="join"></a> `join()`
 
-Run each values to a Source then merge to the output.
+Flatten each values of a Source.
+
+- Return: Source
+
+---
+
+### <a id="chain"></a> `chain(project)`
+
+Flatten the result of each project function of a Source.
 
 - Arguments:
   - `project`: function that returns Source.

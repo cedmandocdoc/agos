@@ -16,7 +16,7 @@ class Chain {
   }
 
   listen(open, next, fail, done, talkback) {
-    const teardowns = [];
+    const aborts = [];
     let cancelled = false;
     let active = 0;
 
@@ -24,7 +24,7 @@ class Chain {
       const project = this.projects[index];
       const source = project(value);
       const abort = teardown(never());
-      teardowns.push(abort);
+      aborts.push(abort);
 
       source.listen(
         () => active++,
@@ -39,13 +39,13 @@ class Chain {
       open,
       this.projects.length === 0 ? next : run(0),
       fail,
-      cancelled => active <= 0 && done(cancelled),
+      () => active <= 0 && done(cancelled),
       tap(value => {
         if (value === CANCEL) {
           cancelled = true;
-          for (let index = 0; index < teardowns.length; index++) {
-            const teardown = teardowns[index];
-            teardown.run();
+          for (let index = 0; index < aborts.length; index++) {
+            const abort = aborts[index];
+            abort.run();
           }
         }
       })(talkback)

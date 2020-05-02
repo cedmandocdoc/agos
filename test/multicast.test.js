@@ -13,6 +13,7 @@ describe("multicast", () => {
   it("should share the value across all listeners", () => {
     const received1 = [];
     const received2 = [];
+    const source = multicast(interval(100, 3));
 
     const open1 = jest.fn();
     const next1 = jest.fn(value => received1.push(value));
@@ -23,8 +24,6 @@ describe("multicast", () => {
     const next2 = jest.fn(value => received2.push(value));
     const fail2 = jest.fn();
     const done2 = jest.fn(cancelled => expect(cancelled).toEqual(false));
-
-    const source = multicast(interval(100, 3));
 
     pipe(
       source,
@@ -54,6 +53,7 @@ describe("multicast", () => {
   it("should propagate cancellation", () => {
     const received1 = [];
     const received2 = [];
+    const source = multicast(interval(100, 3));
 
     const open1 = jest.fn();
     const next1 = jest.fn(value => received1.push(value));
@@ -65,8 +65,6 @@ describe("multicast", () => {
     const fail2 = jest.fn();
     const done2 = jest.fn(cancelled => expect(cancelled).toEqual(true));
     const abort = teardown(never());
-
-    const source = multicast(interval(100, 3));
 
     pipe(
       source,

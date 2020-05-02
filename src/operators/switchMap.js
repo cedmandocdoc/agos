@@ -21,7 +21,6 @@ class SwitchMap {
     let active = 0;
 
     const run = index => value => {
-      // console.log(aborts[index]);
       aborts[index] = aborts[index] || teardown(never());
       const abort = aborts[index];
       abort.run();

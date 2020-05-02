@@ -1,4 +1,6 @@
 import chain from "./operators/chain";
+import collect from "./operators/collect";
+import collectLatest from "./operators/collectLatest";
 import concat from "./operators/concat";
 import create from "./operators/create";
 import empty from "./operators/empty";
@@ -26,6 +28,8 @@ import teardown from "./operators/teardown";
 import throttle from "./operators/throttle";
 
 export {
+  collect,
+  collectLatest,
   concat,
   create,
   empty,

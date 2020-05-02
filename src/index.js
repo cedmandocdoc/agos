@@ -28,13 +28,13 @@ import teardown from "./operators/teardown";
 import throttle from "./operators/throttle";
 
 export {
+  chain,
   collect,
   collectLatest,
   concat,
   create,
   empty,
   filter,
-  chain,
   fromArray,
   join,
   last,

@@ -24,7 +24,7 @@ describe("fromArray", () => {
     expect(next).toHaveBeenCalledTimes(3);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([1, 2, 3]);
+    expect(received).toEqual([[1, 0], [2, 1], [3, 2]]);
   });
 
   it("should propagate cancellation on open", () => {
@@ -53,8 +53,8 @@ describe("fromArray", () => {
     const abort = teardown(never());
 
     const open = jest.fn();
-    const next = jest.fn(value => {
-      received.push(value);
+    const next = jest.fn(([value, index]) => {
+      received.push([value, index]);
       if (value >= 2) abort.run();
     });
     const fail = jest.fn();
@@ -69,7 +69,7 @@ describe("fromArray", () => {
     expect(next).toHaveBeenCalledTimes(2);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([1, 2]);
+    expect(received).toEqual([[1, 0], [2, 1]]);
   });
 
   it("should not propagate cancellation on both before open and next", () => {
@@ -92,7 +92,7 @@ describe("fromArray", () => {
     expect(next).toHaveBeenCalledTimes(3);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([1, 2, 3]);
+    expect(received).toEqual([[1, 0], [2, 1], [3, 2]]);
   });
 
   it("should not propagate cancellation on both after open and next", () => {
@@ -115,6 +115,6 @@ describe("fromArray", () => {
     expect(next).toHaveBeenCalledTimes(3);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([1, 2, 3]);
+    expect(received).toEqual([[1, 0], [2, 1], [3, 2]]);
   });
 });

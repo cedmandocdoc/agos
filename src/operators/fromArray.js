@@ -21,7 +21,7 @@ const fromArray = array =>
     open();
     for (let index = 0; index < array.length; index++) {
       if (cancelled) break;
-      next(array[index]);
+      next([array[index], index]);
     }
     done(false);
   });

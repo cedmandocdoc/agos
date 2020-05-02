@@ -7,7 +7,7 @@ const {
 } = require("../dist/agos.cjs");
 
 describe("fromArray", () => {
-  it("should propagate each value on array", () => {
+  it("should propagate each value and index of array", () => {
     const received = [];
 
     const open = jest.fn();

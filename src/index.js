@@ -10,6 +10,7 @@ import listen from "./operators/listen";
 import map from "./operators/map";
 import merge from "./operators/merge";
 import mergeLatest from "./operators/mergeLatest";
+import multicast from "./operators/multicast";
 import never from "./operators/never";
 import of from "./operators/of";
 import reject from "./operators/reject";
@@ -37,6 +38,7 @@ export {
   map,
   merge,
   mergeLatest,
+  multicast,
   never,
   of,
   reject,

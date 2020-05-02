@@ -6,6 +6,8 @@ import create from "./operators/create";
 import empty from "./operators/empty";
 import filter from "./operators/filter";
 import fromArray from "./operators/fromArray";
+import fromObject from "./operators/fromObject";
+import fromPromise from "./operators/fromPromise";
 import join from "./operators/join";
 import last from "./operators/last";
 import listen from "./operators/listen";
@@ -36,6 +38,8 @@ export {
   empty,
   filter,
   fromArray,
+  fromObject,
+  fromPromise,
   join,
   last,
   listen,

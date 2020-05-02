@@ -17,10 +17,12 @@ import scan from "./operators/scan";
 import skip from "./operators/skip";
 import skipWhile from "./operators/skipWhile";
 import slice from "./operators/slice";
+import switchMap from "./operators/switchMap";
 import take from "./operators/take";
 import takeWhile from "./operators/takeWhile";
 import tap from "./operators/tap";
 import teardown from "./operators/teardown";
+import throttle from "./operators/throttle";
 
 export {
   concat,
@@ -42,10 +44,12 @@ export {
   skip,
   skipWhile,
   slice,
+  switchMap,
   take,
   takeWhile,
   tap,
-  teardown
+  teardown,
+  throttle
 };
 
 export { CANCEL } from "./constants";

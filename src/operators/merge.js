@@ -26,7 +26,7 @@ const merge = sources =>
     for (let index = 0; index < sources.length; index++) {
       const source = sources[index];
       const abort = teardown(never());
-      aborts.push(abort);
+      aborts[index] = abort;
       source.listen(
         open,
         value => next([value, index]),

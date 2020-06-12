@@ -28,8 +28,8 @@
     "asynchronous programming"
   ],
   "scripts": {
-    "lint": "eslint 'src/**/*.js'",
-    "format": "prettier --write 'src/**/*.js'",
+    "lint": "eslint 'src/**/*.js' 'test/**/*.js'",
+    "format": "prettier --write 'src/**/*.js' 'test/**/*.js'",
     "clean": "rm -rf ./dist",
     "build": "yarn clean && rollup -c",
     "dev": "yarn clean && rollup -c -w -m",

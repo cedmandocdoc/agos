@@ -26,7 +26,7 @@ const interval = create((open, next, fail, done, talkback) => {
   let count = 0;
   // propagate data
   const id = setInterval(() => next(++count), 100);
-  const clear = (payload) => {
+  const clear = payload => {
     if (payload[0] === CANCEL) {
       clearInterval(id);
       done(true);
@@ -55,9 +55,9 @@ const cancel = create((open, next, fail, done) => {
 // listen to main source
 interval.listen(
   () => console.log("open"),
-  (value) => console.log(value),
-  (error) => console.log(error),
-  (cancelled) => console.log("done", "cancelled", cancelled),
+  value => console.log(value),
+  error => console.log(error),
+  cancelled => console.log("done", "cancelled", cancelled),
   cancel // provide the cancel source
 );
 

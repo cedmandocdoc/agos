@@ -1,5 +1,10 @@
-import tap from "./tap";
+import filter from "./filter";
 import { CANCEL } from "../constants";
+import { TalkbackNextInterceptor } from "../utils";
+
+const IDLE = 0;
+const ACTIVE = 1;
+const DONE = 2;
 
 class Source {
   constructor(producer) {
@@ -7,37 +12,35 @@ class Source {
   }
 
   listen(open, next, fail, done, talkback) {
-    let completed = false;
-    let cancelled = false;
-    let active = false;
+    const interceptor = new TalkbackNextInterceptor(talkback);
+    let state = IDLE;
     this.producer(
       () => {
-        if (active || completed) return;
-        active = true;
-        open();
+        if (state === IDLE) {
+          state = ACTIVE;
+          open();
+        }
       },
       value => {
-        if (!active || cancelled || completed) return;
-        try {
-          next(value);
-        } catch (error) {
-          fail(error);
+        if (state === ACTIVE) {
+          try {
+            next(value);
+          } catch (error) {
+            fail(error);
+          }
         }
       },
       error => {
-        if (!active || cancelled || completed) return;
-        fail(error);
+        if (state === ACTIVE) fail(error);
       },
       cancelled => {
-        if (!active || completed) return;
-        completed = true;
-        try {
+        if (state === ACTIVE) {
+          interceptor.next([CANCEL]);
           done(cancelled);
-        } catch (error) {
-          fail(error);
+          state = DONE;
         }
       },
-      tap(value => value === CANCEL && (cancelled = true))(talkback)
+      filter(() => state === ACTIVE)(interceptor)
     );
   }
 }

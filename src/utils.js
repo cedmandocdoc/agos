@@ -1,3 +1,5 @@
+import { CANCEL } from "./constants";
+
 export const noop = () => {};
 
 export const pipe = (...cbs) => {
@@ -18,15 +20,27 @@ export class NextInterceptor {
   }
 }
 
-export class TalkbackNextInterceptor {
+export class CancelInterceptor {
   constructor(source) {
-    this.source = source;
-    this.next = noop;
+    this.source = new NextInterceptor(source);
+    this.run = noop;
   }
 
   listen(open, next, fail, done, talkback) {
-    const source = new NextInterceptor(talkback);
-    this.next = value => source.next(value);
-    this.source.listen(open, next, fail, done, source);
+    this.run = () => this.source.next([CANCEL]);
+    this.source.listen(open, next, fail, done, talkback);
+  }
+}
+
+export class TalkbackCancelInterceptor {
+  constructor(source) {
+    this.source = source;
+    this.run = noop;
+  }
+
+  listen(open, next, fail, done, talkback) {
+    const cancel = new CancelInterceptor(talkback);
+    this.run = () => cancel.run();
+    this.source.listen(open, next, fail, done, cancel);
   }
 }

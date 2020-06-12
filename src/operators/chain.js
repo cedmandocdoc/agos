@@ -1,7 +1,7 @@
 import tap from "./tap";
 import never from "./never";
-import teardown from "./teardown";
 import { CANCEL } from "../constants";
+import { CancelInterceptor } from "../utils";
 
 class Chain {
   constructor(source, projects) {
@@ -16,22 +16,22 @@ class Chain {
   }
 
   listen(open, next, fail, done, talkback) {
-    const aborts = [];
+    const cancels = [];
     let cancelled = false;
     let active = 0;
 
     const run = index => value => {
       const project = this.projects[index];
       const source = project(value);
-      const abort = teardown(never());
-      aborts.push(abort);
+      const cancel = new CancelInterceptor(never());
+      cancels.push(cancel);
 
       source.listen(
         () => active++,
         index >= this.projects.length - 1 ? next : run(index + 1),
         fail,
         () => --active <= 0 && done(cancelled),
-        abort
+        cancel
       );
     };
 
@@ -40,12 +40,12 @@ class Chain {
       this.projects.length === 0 ? next : run(0),
       fail,
       () => active <= 0 && done(cancelled),
-      tap(value => {
-        if (value === CANCEL) {
+      tap(payload => {
+        if (payload[0] === CANCEL) {
           cancelled = true;
-          for (let index = 0; index < aborts.length; index++) {
-            const abort = aborts[index];
-            abort.run();
+          for (let index = 0; index < cancels.length; index++) {
+            const cancel = cancels[index];
+            cancel.run();
           }
         }
       })(talkback)

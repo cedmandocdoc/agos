@@ -8,8 +8,8 @@ const fromArray = array =>
     let cancelled = false;
     talkback.listen(
       noop,
-      value => {
-        if (value === CANCEL) {
+      payload => {
+        if (payload[0] === CANCEL) {
           cancelled = true;
           done(true);
         }

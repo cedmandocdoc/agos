@@ -1,6 +1,5 @@
 import filter from "./filter";
-import { CANCEL } from "../constants";
-import { TalkbackNextInterceptor } from "../utils";
+import { TalkbackCancelInterceptor } from "../utils";
 
 const IDLE = 0;
 const ACTIVE = 1;
@@ -12,7 +11,7 @@ class Source {
   }
 
   listen(open, next, fail, done, talkback) {
-    const interceptor = new TalkbackNextInterceptor(talkback);
+    const cancel = new TalkbackCancelInterceptor(talkback);
     let state = IDLE;
     this.producer(
       () => {
@@ -35,12 +34,12 @@ class Source {
       },
       cancelled => {
         if (state === ACTIVE) {
-          interceptor.next([CANCEL]);
+          cancel.run();
           done(cancelled);
           state = DONE;
         }
       },
-      filter(() => state === ACTIVE)(interceptor)
+      filter(() => state === ACTIVE)(cancel)
     );
   }
 }

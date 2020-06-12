@@ -15,8 +15,8 @@ const multicast = source => {
     dones.add(done);
     talkback.listen(
       noop,
-      value => {
-        if (value === CANCEL) {
+      payload => {
+        if (payload[0] === CANCEL) {
           nexts.delete(next);
           fails.delete(fail);
           dones.delete(done);

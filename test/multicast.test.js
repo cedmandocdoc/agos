@@ -4,7 +4,7 @@ const {
   listen,
   multicast,
   never,
-  teardown
+  CancelInterceptor
 } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
@@ -64,7 +64,7 @@ describe("multicast", () => {
     const next2 = jest.fn(value => received2.push(value));
     const fail2 = jest.fn();
     const done2 = jest.fn(cancelled => expect(cancelled).toEqual(true));
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
     pipe(
       source,
@@ -73,10 +73,10 @@ describe("multicast", () => {
 
     pipe(
       source,
-      listen(open2, next2, fail2, done2, abort)
+      listen(open2, next2, fail2, done2, cancel)
     );
 
-    setTimeout(() => abort.run(), 200);
+    setTimeout(() => cancel.run(), 200);
 
     jest.advanceTimersByTime(300);
 

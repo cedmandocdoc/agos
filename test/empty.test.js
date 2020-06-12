@@ -1,4 +1,10 @@
-const { pipe, listen, empty, never, teardown } = require("../dist/agos.cjs");
+const {
+  pipe,
+  listen,
+  empty,
+  never,
+  CancelInterceptor
+} = require("../dist/agos.cjs");
 
 describe("empty", () => {
   it("should propagate completion", () => {
@@ -19,16 +25,16 @@ describe("empty", () => {
   });
 
   it("should propagate cancellation on open", () => {
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
-    const open = jest.fn(() => abort.run());
+    const open = jest.fn(() => cancel.run());
     const next = jest.fn();
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
     pipe(
       empty(),
-      listen(open, next, fail, done, abort)
+      listen(open, next, fail, done, cancel)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -38,18 +44,18 @@ describe("empty", () => {
   });
 
   it("should not propagate cancellation before open", () => {
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
     const open = jest.fn();
     const next = jest.fn();
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    abort.run();
+    cancel.run();
 
     pipe(
       empty(),
-      listen(open, next, fail, done, abort)
+      listen(open, next, fail, done, cancel)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -59,7 +65,7 @@ describe("empty", () => {
   });
 
   it("should not propagate cancellation after open", () => {
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
     const open = jest.fn();
     const next = jest.fn();
@@ -68,10 +74,10 @@ describe("empty", () => {
 
     pipe(
       empty(),
-      listen(open, next, fail, done, abort)
+      listen(open, next, fail, done, cancel)
     );
 
-    abort.run();
+    cancel.run();
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);

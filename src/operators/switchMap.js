@@ -1,7 +1,7 @@
 import tap from "./tap";
 import never from "./never";
-import teardown from "./teardown";
 import { CANCEL } from "../constants";
+import { CancelInterceptor } from "../utils";
 
 class SwitchMap {
   constructor(source, projects) {
@@ -16,14 +16,14 @@ class SwitchMap {
   }
 
   listen(open, next, fail, done, talkback) {
-    const aborts = [];
+    const cancels = [];
     let cancelled = false;
     let active = 0;
 
     const run = index => value => {
-      aborts[index] = aborts[index] || teardown(never());
-      const abort = aborts[index];
-      abort.run();
+      cancels[index] = cancels[index] || new CancelInterceptor(never());
+      const cancel = cancels[index];
+      cancel.run();
       const project = this.projects[index];
       const source = project(value);
 
@@ -32,7 +32,7 @@ class SwitchMap {
         index >= this.projects.length - 1 ? next : run(index + 1),
         fail,
         () => --active <= 0 && done(cancelled),
-        abort
+        cancel
       );
     };
 
@@ -41,12 +41,12 @@ class SwitchMap {
       this.projects.length === 0 ? next : run(0),
       fail,
       () => {},
-      tap(value => {
-        if (value === CANCEL) {
+      tap(payload => {
+        if (payload[0] === CANCEL) {
           cancelled = true;
-          for (let index = 0; index < aborts.length; index++) {
-            const abort = aborts[index];
-            abort.run();
+          for (let index = 0; index < cancels.length; index++) {
+            const cancel = cancels[index];
+            cancel.run();
           }
         }
       })(talkback)

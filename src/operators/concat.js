@@ -1,18 +1,17 @@
 import create from "./create";
 import never from "./never";
-import teardown from "./teardown";
-import { noop } from "../utils";
+import { noop, CancelInterceptor } from "../utils";
 import { CANCEL } from "../constants";
 
 const concat = sources =>
   create((open, next, fail, done, talkback) => {
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
     talkback.listen(
       noop,
-      value => {
-        if (value === CANCEL) {
-          abort.run();
+      payload => {
+        if (payload[0] === CANCEL) {
+          cancel.run();
           done(true);
         }
       },
@@ -31,7 +30,7 @@ const concat = sources =>
           if (index >= sources.length - 1) return done(false);
           run(index + 1);
         },
-        abort
+        cancel
       );
     };
 

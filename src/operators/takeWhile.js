@@ -1,4 +1,4 @@
-import teardown from "./teardown";
+import { CancelInterceptor } from "../utils";
 
 class TakeWhile {
   constructor(source, predicate) {
@@ -16,17 +16,17 @@ class TakeWhile {
   }
 
   listen(open, next, fail, done, talkback) {
-    const abort = teardown(talkback);
+    const cancel = new CancelInterceptor(talkback);
 
     this.source.listen(
       open,
       value => {
-        if (!this.predicate(value)) return abort.run();
+        if (!this.predicate(value)) return cancel.run();
         next(value);
       },
       fail,
       done,
-      abort
+      cancel
     );
   }
 }

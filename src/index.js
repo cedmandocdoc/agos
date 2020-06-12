@@ -26,7 +26,6 @@ import switchMap from "./operators/switchMap";
 import take from "./operators/take";
 import takeWhile from "./operators/takeWhile";
 import tap from "./operators/tap";
-import teardown from "./operators/teardown";
 import throttle from "./operators/throttle";
 
 export {
@@ -58,9 +57,13 @@ export {
   take,
   takeWhile,
   tap,
-  teardown,
   throttle
 };
 
 export { CANCEL } from "./constants";
-export { pipe } from "./utils";
+export {
+  pipe,
+  NextInterceptor,
+  CancelInterceptor,
+  TalkbackCancelInterceptor
+} from "./utils";

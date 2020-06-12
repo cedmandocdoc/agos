@@ -16,8 +16,8 @@ const interval = (duration, take = Infinity) =>
 
     talkback.listen(
       noop,
-      value => {
-        if (value === CANCEL) {
+      payload => {
+        if (payload[0] === CANCEL) {
           clearInterval(id);
           done(true);
         }

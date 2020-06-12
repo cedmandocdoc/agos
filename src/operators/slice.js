@@ -1,4 +1,4 @@
-import teardown from "./teardown";
+import { CancelInterceptor } from "../utils";
 
 class Slice {
   constructor(source, start = 0, end = Infinity) {
@@ -38,18 +38,18 @@ class Slice {
     } else {
       // slice sink
       let count = 0;
-      const abort = teardown(talkback);
+      const cancel = new CancelInterceptor(talkback);
 
       this.source.listen(
         open,
         value => {
           count++;
           count > this.start && next(value);
-          count >= this.end && abort.run();
+          count >= this.end && cancel.run();
         },
         fail,
         done,
-        abort
+        cancel
       );
     }
   }

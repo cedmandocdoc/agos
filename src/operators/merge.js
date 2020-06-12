@@ -1,20 +1,19 @@
 import create from "./create";
 import never from "./never";
-import teardown from "./teardown";
-import { noop } from "../utils";
+import { noop, CancelInterceptor } from "../utils";
 import { CANCEL } from "../constants";
 
 const merge = sources =>
   create((open, next, fail, done, talkback) => {
     const closed = [];
-    const aborts = [];
+    const cancels = [];
     talkback.listen(
       noop,
-      value => {
-        if (value === CANCEL) {
-          for (let index = 0; index < aborts.length; index++) {
-            const abort = aborts[index];
-            abort.run();
+      payload => {
+        if (payload[0] === CANCEL) {
+          for (let index = 0; index < cancels.length; index++) {
+            const cancel = cancels[index];
+            cancel.run();
           }
           done(true);
         }
@@ -25,8 +24,8 @@ const merge = sources =>
     );
     for (let index = 0; index < sources.length; index++) {
       const source = sources[index];
-      const abort = teardown(never());
-      aborts[index] = abort;
+      const cancel = new CancelInterceptor(never());
+      cancels[index] = cancel;
       source.listen(
         open,
         value => next([value, index]),
@@ -35,7 +34,7 @@ const merge = sources =>
           closed[index] = true;
           if (closed.length === sources.length) done(false);
         },
-        abort
+        cancel
       );
     }
   });

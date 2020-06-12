@@ -12,7 +12,7 @@ const fromPromise = promise =>
       .finally(() => done(false));
     talkback.listen(
       noop,
-      value => value === CANCEL && done(true),
+      payload => payload[0] === CANCEL && done(true),
       noop,
       noop,
       never()

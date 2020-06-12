@@ -7,7 +7,7 @@ const fail = error =>
   create((open, next, fail, done, talkback) => {
     talkback.listen(
       noop,
-      value => value === CANCEL && done(true),
+      payload => payload[0] === CANCEL && done(true),
       noop,
       noop,
       never()

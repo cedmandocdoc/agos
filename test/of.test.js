@@ -1,4 +1,10 @@
-const { pipe, listen, of, never, teardown } = require("../dist/agos.cjs");
+const {
+  pipe,
+  listen,
+  of,
+  never,
+  CancelInterceptor
+} = require("../dist/agos.cjs");
 
 describe("of", () => {
   it("should propagate the given value", () => {
@@ -22,16 +28,16 @@ describe("of", () => {
 
   it("should propagate cancellation on open", () => {
     const received = [];
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
-    const open = jest.fn(() => abort.run());
+    const open = jest.fn(() => cancel.run());
     const next = jest.fn(value => received.push(value));
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
     pipe(
       of(1),
-      listen(open, next, fail, done, abort)
+      listen(open, next, fail, done, cancel)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -42,18 +48,18 @@ describe("of", () => {
 
   it("should not propagate cancellation before open", () => {
     const received = [];
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
     const open = jest.fn();
     const next = jest.fn(value => received.push(value));
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    abort.run();
+    cancel.run();
 
     pipe(
       of(1),
-      listen(open, next, fail, done, abort)
+      listen(open, next, fail, done, cancel)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -64,7 +70,7 @@ describe("of", () => {
 
   it("should not propagate cancellation after open", () => {
     const received = [];
-    const abort = teardown(never());
+    const cancel = new CancelInterceptor(never());
 
     const open = jest.fn();
     const next = jest.fn(value => received.push(value));
@@ -73,10 +79,10 @@ describe("of", () => {
 
     pipe(
       of(1),
-      listen(open, next, fail, done, abort)
+      listen(open, next, fail, done, cancel)
     );
 
-    abort.run();
+    cancel.run();
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(1);

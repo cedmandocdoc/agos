@@ -3,6 +3,7 @@ import collect from "./operators/collect";
 import collectLatest from "./operators/collectLatest";
 import concat from "./operators/concat";
 import create from "./operators/create";
+import emitter from "./operators/emitter";
 import empty from "./operators/empty";
 import filter from "./operators/filter";
 import fromArray from "./operators/fromArray";
@@ -34,6 +35,7 @@ export {
   collectLatest,
   concat,
   create,
+  emitter,
   empty,
   filter,
   fromArray,

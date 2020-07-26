@@ -8,10 +8,11 @@ class TakeWhile {
 
   static join(source, predicate) {
     return source instanceof TakeWhile
-      ? new TakeWhile(
-          source.source,
-          value => source.predicate(value) || predicate(value)
-        )
+      ? new TakeWhile(source.source, value => {
+          const [included, inclusive] = source.predicate(value);
+          if (!included) return [included, inclusive];
+          return predicate(value);
+        })
       : new TakeWhile(source, predicate);
   }
 
@@ -21,7 +22,11 @@ class TakeWhile {
     this.source.listen(
       open,
       value => {
-        if (!this.predicate(value)) return cancel.run();
+        const [included, inclusive] = this.predicate(value);
+        if (!included) {
+          if (inclusive) next(value);
+          return cancel.run();
+        }
         next(value);
       },
       fail,
@@ -31,6 +36,7 @@ class TakeWhile {
   }
 }
 
-const takeWhile = predicate => source => TakeWhile.join(source, predicate);
+const takeWhile = (predicate, inclusive = false) => source =>
+  TakeWhile.join(source, value => [predicate(value), inclusive]);
 
 export default takeWhile;

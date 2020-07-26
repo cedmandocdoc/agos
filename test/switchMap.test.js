@@ -98,6 +98,29 @@ describe("switchMap", () => {
     expect(received).toEqual([1, 2, 3]);
   });
 
+  it("should flattened the source through project function: source multiple emit one chain multiple emit", () => {
+    const received = [];
+
+    const open = jest.fn();
+    const next = jest.fn(value => received.push(value));
+    const fail = jest.fn();
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
+
+    pipe(
+      interval(300, 2), // 300 or 201?
+      switchMap(() => interval(100, 2)),
+      listen(open, next, fail, done)
+    );
+
+    jest.advanceTimersByTime(5000);
+
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(4);
+    expect(fail).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(1);
+    expect(received).toEqual([1, 2, 1, 2]);
+  });
+
   it("should propagate error when any project function throws an error", () => {
     const received = [];
 

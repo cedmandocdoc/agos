@@ -18,6 +18,7 @@ class SwitchMap {
   listen(open, next, fail, done, talkback) {
     const cancels = [];
     let cancelled = false;
+    let finished = false;
     let active = 0;
 
     const run = index => value => {
@@ -31,7 +32,7 @@ class SwitchMap {
         () => active++,
         index >= this.projects.length - 1 ? next : run(index + 1),
         fail,
-        () => --active <= 0 && done(cancelled),
+        () => --active <= 0 && finished && done(cancelled),
         cancel
       );
     };
@@ -40,10 +41,13 @@ class SwitchMap {
       open,
       this.projects.length === 0 ? next : run(0),
       fail,
-      () => {},
+      cancel => {
+        finished = true;
+        cancelled = cancel;
+        if (active <= 0) done(cancelled);
+      },
       tap(payload => {
         if (payload[0] === CANCEL) {
-          cancelled = true;
           for (let index = 0; index < cancels.length; index++) {
             const cancel = cancels[index];
             cancel.run();

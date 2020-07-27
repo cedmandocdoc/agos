@@ -1,16 +1,14 @@
 import collect from "./collect";
 import scan from "./scan";
 import filter from "./filter";
-import { pipe } from "../utils";
 
-const collectLatest = pipes =>
-  pipe(
-    collect(pipes),
+const collectLatest = pipes => source =>
+  filter(values => values.length >= pipes.length)(
     scan((values, [value, index]) => {
-      values[index] = value;
-      return values;
-    }, []),
-    filter(values => values.length >= pipes.length)
+      const newValues = [...values];
+      newValues[index] = value;
+      return newValues;
+    }, [])(collect(pipes)(source))
   );
 
 export default collectLatest;

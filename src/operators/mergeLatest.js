@@ -5,7 +5,7 @@ import { pipe } from "../utils";
 
 const mergeLatest = sources =>
   pipe(
-    merge(sources),
+    merge(sources, true),
     scan((values, [value, index]) => {
       values[index] = value;
       return values;

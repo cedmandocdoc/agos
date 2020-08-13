@@ -3,7 +3,7 @@ import never from "./never";
 import { noop, CancelInterceptor } from "../utils";
 import { CANCEL } from "../constants";
 
-const merge = sources =>
+const merge = (sources, withIndex = false) =>
   create((open, next, fail, done, talkback) => {
     const closed = [];
     const cancels = [];
@@ -29,13 +29,12 @@ const merge = sources =>
       closed[index] = false;
       source.listen(
         open,
-        (value) => next([value, index]),
-        (error) => fail([error, index]),
+        (value) => next(withIndex ? [value, index] : value),
+        (error) => fail(withIndex ? [error, index] : error),
         () => {
           closed[index] = true;
           let allClosed = true;
           for (let index = 0; index < closed.length; index++) {
-            console.log(closed[index])
             if (!closed[index]) {
               allClosed = false;
               break;

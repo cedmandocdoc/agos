@@ -47,7 +47,7 @@ describe("merge", () => {
   });
 
   it("should propagate all values from both sync and async source", () => {
-    const expected = [1,1,2,3]
+    const expected = [1, 1, 2, 3];
 
     const open = jest.fn();
     const next = jest.fn(value => expect(value).toEqual(expected.shift()));
@@ -68,7 +68,7 @@ describe("merge", () => {
   });
 
   it("should propagate error when any source propagates an error", () => {
-    const expected = [1,2,3]
+    const expected = [1, 2, 3];
     const error = new Error();
 
     const open = jest.fn();

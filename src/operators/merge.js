@@ -29,8 +29,8 @@ const merge = (sources, withIndex = false) =>
       closed[index] = false;
       source.listen(
         open,
-        (value) => next(withIndex ? [value, index] : value),
-        (error) => fail(withIndex ? [error, index] : error),
+        value => next(withIndex ? [value, index] : value),
+        error => fail(withIndex ? [error, index] : error),
         () => {
           closed[index] = true;
           let allClosed = true;
@@ -45,7 +45,6 @@ const merge = (sources, withIndex = false) =>
         cancel
       );
     }
-    
   });
 
 export default merge;

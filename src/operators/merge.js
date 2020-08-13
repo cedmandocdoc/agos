@@ -26,17 +26,27 @@ const merge = sources =>
       const source = sources[index];
       const cancel = new CancelInterceptor(never());
       cancels[index] = cancel;
+      closed[index] = false;
       source.listen(
         open,
-        value => next([value, index]),
-        error => fail([error, index]),
+        (value) => next([value, index]),
+        (error) => fail([error, index]),
         () => {
           closed[index] = true;
-          if (closed.length === sources.length) done(false);
+          let allClosed = true;
+          for (let index = 0; index < closed.length; index++) {
+            console.log(closed[index])
+            if (!closed[index]) {
+              allClosed = false;
+              break;
+            }
+          }
+          if (allClosed) done(false);
         },
         cancel
       );
     }
+    
   });
 
 export default merge;

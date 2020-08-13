@@ -1,5 +1,5 @@
 const { interval } = require("./utils");
-const { pipe, listen, merge, map } = require("../dist/agos.cjs");
+const { pipe, listen, merge, map, of } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
@@ -21,6 +21,27 @@ describe("merge", () => {
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(5);
+    expect(fail).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  it("should propagate all values from both sync and async source", () => {
+    const expected = [[1, 1], [1, 0], [2, 0],  [3, 0]];
+
+    const open = jest.fn();
+    const next = jest.fn(value => expect(value).toEqual(expected.shift()));
+    const fail = jest.fn();
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
+
+    pipe(
+      merge([interval(100, 3), of(1)]),
+      listen(open, next, fail, done)
+    );
+
+    jest.advanceTimersByTime(300);
+
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(4);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
   });

@@ -23,6 +23,7 @@ import scan from "./operators/scan";
 import skip from "./operators/skip";
 import skipWhile from "./operators/skipWhile";
 import slice from "./operators/slice";
+import subscribe from "./operators/subscribe";
 import switchMap from "./operators/switchMap";
 import take from "./operators/take";
 import takeWhile from "./operators/takeWhile";
@@ -55,6 +56,7 @@ export {
   skip,
   skipWhile,
   slice,
+  subscribe,
   switchMap,
   take,
   takeWhile,

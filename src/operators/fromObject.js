@@ -1,7 +1,7 @@
 import create from "./create";
 import never from "./never";
+import Observable from "../Observable";
 import { noop } from "../utils";
-import { CANCEL } from "../constants";
 
 const fromObject = object =>
   create((open, next, fail, done, talkback) => {
@@ -9,7 +9,7 @@ const fromObject = object =>
     talkback.listen(
       noop,
       payload => {
-        if (payload[0] === CANCEL) {
+        if (payload[0] === Observable.CANCEL) {
           cancelled = true;
           done(true);
         }

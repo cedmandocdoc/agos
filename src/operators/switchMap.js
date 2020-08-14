@@ -1,18 +1,17 @@
+import Observable, { Operator, CancelInterceptor } from "../Observable";
 import tap from "./tap";
 import never from "./never";
-import { CANCEL } from "../constants";
-import { CancelInterceptor } from "../utils";
 
-class SwitchMap {
+class SwitchMap extends Operator {
   constructor(source, projects) {
-    this.source = source;
+    super(source);
     this.projects = projects;
   }
 
-  static join(source, projects) {
-    return source instanceof SwitchMap
-      ? new SwitchMap(source.source, [...source.projects, ...projects])
-      : new SwitchMap(source, projects);
+  static join(observable, projects) {
+    return observable instanceof SwitchMap
+      ? new SwitchMap(observable.source, [...observable.projects, ...projects])
+      : super.join(observable, projects);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -22,13 +21,13 @@ class SwitchMap {
     let active = 0;
 
     const run = index => value => {
-      cancels[index] = cancels[index] || new CancelInterceptor(never());
+      cancels[index] = cancels[index] || CancelInterceptor.join(never());
       const cancel = cancels[index];
       cancel.run();
       const project = this.projects[index];
-      const source = project(value);
+      const observable = project(value);
 
-      source.listen(
+      observable.listen(
         () => active++,
         index >= this.projects.length - 1 ? next : run(index + 1),
         fail,
@@ -37,7 +36,7 @@ class SwitchMap {
       );
     };
 
-    this.source.listen(
+    this.source(
       open,
       this.projects.length === 0 ? next : run(0),
       fail,
@@ -47,7 +46,7 @@ class SwitchMap {
         if (active <= 0) done(cancelled);
       },
       tap(payload => {
-        if (payload[0] === CANCEL) {
+        if (payload[0] === Observable.CANCEL) {
           for (let index = 0; index < cancels.length; index++) {
             const cancel = cancels[index];
             cancel.run();
@@ -58,6 +57,7 @@ class SwitchMap {
   }
 }
 
-const switchMap = project => source => SwitchMap.join(source, [project]);
+const switchMap = project => observable =>
+  SwitchMap.join(observable, [project]);
 
 export default switchMap;

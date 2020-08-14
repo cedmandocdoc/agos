@@ -1,17 +1,15 @@
-class Scan {
+import { Operator } from "../Observable";
+
+class Scan extends Operator {
   constructor(source, accumulator, seed) {
-    this.source = source;
+    super(source);
     this.accumulator = accumulator;
     this.seed = seed;
   }
 
-  static join(source, accumulator, seed) {
-    return new Scan(source, accumulator, seed);
-  }
-
   listen(open, next, fail, done, talkback) {
     let seed = this.seed;
-    this.source.listen(
+    this.source(
       open,
       value => {
         seed = this.accumulator(seed, value);

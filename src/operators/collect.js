@@ -1,10 +1,11 @@
 import emitter from "./emitter";
-import { noop, CancelInterceptor } from "../utils";
 import never from "./never";
+import { Operator, CancelInterceptor } from "../Observable";
+import { noop } from "../utils";
 
-class Collect {
+class Collect extends Operator {
   constructor(source, pipes) {
-    this.source = source;
+    super(source);
     this.pipes = pipes;
   }
 
@@ -12,7 +13,7 @@ class Collect {
     // TO DO investigate if emitter
     // is appropriate to use in collection
     const [controller, subject] = emitter();
-    const cancel = new CancelInterceptor(talkback);
+    const cancel = CancelInterceptor.join(talkback);
     let cancelled = 0;
     let active = false;
     for (let index = 0; index < this.pipes.length; index++) {
@@ -27,7 +28,7 @@ class Collect {
         never()
       );
     }
-    this.source.listen(
+    this.source(
       () => {
         active = true;
         open();
@@ -45,6 +46,6 @@ class Collect {
   }
 }
 
-const collect = pipes => source => new Collect(source, pipes);
+const collect = pipes => observable => Collect.join(observable, pipes);
 
 export default collect;

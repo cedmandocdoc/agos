@@ -1,5 +1,5 @@
 import chain from "./chain";
 
-const join = () => chain(source => source);
+const join = () => chain(observable => observable);
 
 export default join;

@@ -1,20 +1,20 @@
-import { CancelInterceptor } from "../utils";
+import { Operator, CancelInterceptor } from "../Observable";
 
-class Slice {
+class Slice extends Operator {
   constructor(source, start = 0, end = Infinity) {
-    this.source = source;
+    super(source);
     this.start = start;
     this.end = end;
   }
 
-  static join(source, start = 0, end = Infinity) {
-    return source instanceof Slice
+  static join(observable, start = 0, end = Infinity) {
+    return observable instanceof Slice
       ? new Slice(
-          source.source,
-          start < 0 ? start : source.start + start,
-          end < source.end ? end : source.end
+          observable.source,
+          start < 0 ? start : observable.start + start,
+          end < observable.end ? end : observable.end
         )
-      : new Slice(source, start, end);
+      : super.join(observable, start, end);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -22,7 +22,7 @@ class Slice {
       // future sink
       const values = [];
 
-      this.source.listen(
+      this.source(
         open,
         value => values.push(value),
         fail,
@@ -38,9 +38,9 @@ class Slice {
     } else {
       // slice sink
       let count = 0;
-      const cancel = new CancelInterceptor(talkback);
+      const cancel = CancelInterceptor.join(talkback);
 
-      this.source.listen(
+      this.source(
         open,
         value => {
           count++;

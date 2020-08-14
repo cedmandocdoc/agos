@@ -1,20 +1,22 @@
-class Filter {
+import { Operator } from "../Observable";
+
+class Filter extends Operator {
   constructor(source, predicate) {
-    this.source = source;
+    super(source);
     this.predicate = predicate;
   }
 
-  static join(source, predicate) {
-    return source instanceof Filter
+  static join(observable, predicate) {
+    return observable instanceof Filter
       ? new Filter(
-          source.source,
-          value => source.predicate(value) && predicate(value)
+          observable.source,
+          value => observable.predicate(value) && predicate(value)
         )
-      : new Filter(source, predicate);
+      : super.join(observable, predicate);
   }
 
   listen(open, next, fail, done, talkback) {
-    this.source.listen(
+    this.source(
       open,
       value => this.predicate(value) && next(value),
       fail,
@@ -24,6 +26,6 @@ class Filter {
   }
 }
 
-const filter = predicate => source => Filter.join(source, predicate);
+const filter = predicate => observable => Filter.join(observable, predicate);
 
 export default filter;

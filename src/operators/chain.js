@@ -1,18 +1,17 @@
+import Observable, { Operator, CancelInterceptor } from "../Observable";
 import tap from "./tap";
 import never from "./never";
-import { CANCEL } from "../constants";
-import { CancelInterceptor } from "../utils";
 
-class Chain {
+class Chain extends Operator {
   constructor(source, projects) {
-    this.source = source;
+    super(source);
     this.projects = projects;
   }
 
-  static join(source, projects) {
-    return source instanceof Chain
-      ? new Chain(source.source, [...source.projects, ...projects])
-      : new Chain(source, projects);
+  static join(observable, projects) {
+    return observable instanceof Chain
+      ? new Chain(observable.source, [...observable.projects, ...projects])
+      : super.join(observable, projects);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -22,11 +21,11 @@ class Chain {
 
     const run = index => value => {
       const project = this.projects[index];
-      const source = project(value);
-      const cancel = new CancelInterceptor(never());
+      const observable = project(value);
+      const cancel = CancelInterceptor.join(never());
       cancels.push(cancel);
 
-      source.listen(
+      observable.listen(
         () => active++,
         index >= this.projects.length - 1 ? next : run(index + 1),
         fail,
@@ -35,13 +34,13 @@ class Chain {
       );
     };
 
-    this.source.listen(
+    this.source(
       open,
       this.projects.length === 0 ? next : run(0),
       fail,
       () => active <= 0 && done(cancelled),
       tap(payload => {
-        if (payload[0] === CANCEL) {
+        if (payload[0] === Observable.CANCEL) {
           cancelled = true;
           for (let index = 0; index < cancels.length; index++) {
             const cancel = cancels[index];
@@ -53,6 +52,6 @@ class Chain {
   }
 }
 
-const chain = (...projects) => source => Chain.join(source, projects);
+const chain = (...projects) => observable => Chain.join(observable, projects);
 
 export default chain;

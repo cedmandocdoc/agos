@@ -1,3 +1,8 @@
+import Observable, {
+  Operator,
+  CancelInterceptor,
+  TalkbackCancelInterceptor
+} from "./Observable";
 import chain from "./operators/chain";
 import collect from "./operators/collect";
 import collectLatest from "./operators/collectLatest";
@@ -31,6 +36,10 @@ import tap from "./operators/tap";
 import throttle from "./operators/throttle";
 
 export {
+  Observable,
+  Operator,
+  CancelInterceptor,
+  TalkbackCancelInterceptor,
   chain,
   collect,
   collectLatest,
@@ -64,10 +73,4 @@ export {
   throttle
 };
 
-export { CANCEL } from "./constants";
-export {
-  pipe,
-  NextInterceptor,
-  CancelInterceptor,
-  TalkbackCancelInterceptor
-} from "./utils";
+export { pipe } from "./utils";

@@ -2,7 +2,7 @@ import create from "./create";
 import never from "./never";
 import emitter from "./emitter";
 
-const multicast = source => {
+const multicast = observable => {
   let active = false;
   const [controller, subject] = emitter();
 
@@ -10,7 +10,7 @@ const multicast = source => {
     subject.listen(open, next, fail, done, talkback);
     if (!active) {
       active = true;
-      source.listen(
+      observable.listen(
         controller.open,
         controller.next,
         controller.fail,

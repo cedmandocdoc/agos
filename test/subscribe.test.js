@@ -43,13 +43,12 @@ describe("subscribe", () => {
 
   it("should accept a talkback - last parameter", () => {
     const received = [];
-    const cancel = new CancelInterceptor(never());
+    const cancel = CancelInterceptor.join(never());
 
     const open = jest.fn(() => cancel.run());
     const next = jest.fn(value => received.push(value));
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
-
 
     pipe(
       of(1),

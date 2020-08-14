@@ -7,6 +7,6 @@ const listen = (
   fail = noop,
   done = noop,
   talkback = never()
-) => source => source.listen(open, next, fail, done, talkback);
+) => observable => observable.listen(open, next, fail, done, talkback);
 
 export default listen;

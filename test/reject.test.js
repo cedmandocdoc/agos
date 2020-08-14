@@ -28,7 +28,7 @@ describe("reject", () => {
 
   it("should propagate cancellation on open", () => {
     const error = new Error();
-    const cancel = new CancelInterceptor(never());
+    const cancel = CancelInterceptor.join(never());
 
     const open = jest.fn(() => cancel.run());
     const next = jest.fn();
@@ -48,7 +48,7 @@ describe("reject", () => {
 
   it("should not propagate cancellation before open", () => {
     const error = new Error();
-    const cancel = new CancelInterceptor(never());
+    const cancel = CancelInterceptor.join(never());
 
     const open = jest.fn();
     const next = jest.fn();
@@ -70,7 +70,7 @@ describe("reject", () => {
 
   it("should not propagate cancellation after open", () => {
     const error = new Error();
-    const cancel = new CancelInterceptor(never());
+    const cancel = CancelInterceptor.join(never());
 
     const open = jest.fn();
     const next = jest.fn();

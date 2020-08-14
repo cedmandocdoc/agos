@@ -1,20 +1,22 @@
-class Throttle {
+import { Operator } from "../Observable";
+
+class Throttle extends Operator {
   constructor(source, tick) {
-    this.source = source;
+    super(source);
     this.tick = tick;
   }
 
-  static join(source, tick) {
-    return source instanceof Throttle
-      ? new Throttle(source.source, (release, data) =>
-          source.tick(() => tick(release, data), data)
+  static join(observable, tick) {
+    return observable instanceof Throttle
+      ? new Throttle(observable.source, (release, data) =>
+          observable.tick(() => tick(release, data), data)
         )
-      : new Throttle(source, tick);
+      : super.join(observable, tick);
   }
 
   listen(open, next, fail, done, talkback) {
     let active = false;
-    this.source.listen(
+    this.source(
       open,
       value => {
         if (active) return;
@@ -31,6 +33,6 @@ class Throttle {
   }
 }
 
-const throttle = tick => source => Throttle.join(source, tick);
+const throttle = tick => observable => Throttle.join(observable, tick);
 
 export default throttle;

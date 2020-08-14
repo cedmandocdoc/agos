@@ -1,5 +1,5 @@
 const { noop } = require("./utils");
-const { pipe, listen, create, CANCEL, never } = require("../dist/agos.cjs");
+const { pipe, listen, create, Observable, never } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
@@ -92,7 +92,7 @@ describe("create", () => {
     const source = create((open, next, fail, done, talkback) => {
       const topen = jest.fn();
       const tnext = jest.fn(value => {
-        expect(value).toEqual([CANCEL]);
+        expect(value).toEqual([Observable.CANCEL]);
         // upon receiving cancellation
         // token, source should be completed
         done(true);
@@ -119,11 +119,11 @@ describe("create", () => {
     const talkback = create((open, next, fail, done, external) => {
       open();
       external.listen(noop, () => done(true), noop, noop, never());
-      next([CANCEL]);
+      next([Observable.CANCEL]);
       // should not get called, since the source
       // has received a cancellation token it
       // will immediately call done
-      next([CANCEL]);
+      next([Observable.CANCEL]);
     });
 
     const received = [];
@@ -174,7 +174,7 @@ describe("create", () => {
         noop,
         value => {
           // when the source is done it will propagate a cancellation token
-          expect(value).toEqual([CANCEL]);
+          expect(value).toEqual([Observable.CANCEL]);
           done(true);
           clearTimeout(id); // clear the async propagation
         },

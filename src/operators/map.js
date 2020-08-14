@@ -1,26 +1,22 @@
-class Map {
+import { Operator } from "../Observable";
+
+class Map extends Operator {
   constructor(source, project) {
-    this.source = source;
+    super(source);
     this.project = project;
   }
 
-  static join(source, project) {
-    return source instanceof Map
-      ? new Map(source.source, value => project(source.project(value)))
-      : new Map(source, project);
+  static join(observable, project) {
+    return observable instanceof Map
+      ? new Map(observable.source, value => project(observable.project(value)))
+      : super.join(observable, project);
   }
 
   listen(open, next, fail, done, talkback) {
-    this.source.listen(
-      open,
-      value => next(this.project(value)),
-      fail,
-      done,
-      talkback
-    );
+    this.source(open, value => next(this.project(value)), fail, done, talkback);
   }
 }
 
-const map = project => source => Map.join(source, project);
+const map = project => observable => Map.join(observable, project);
 
 export default map;

@@ -33,6 +33,7 @@ const merge = (observables, withIndex = false) =>
         error => fail(withIndex ? [error, index] : error),
         () => {
           closed[index] = true;
+          if (closed.length !== observables.length) return;
           let allClosed = true;
           for (let index = 0; index < closed.length; index++) {
             if (!closed[index]) {

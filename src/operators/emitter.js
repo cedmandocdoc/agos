@@ -7,8 +7,9 @@ const IDLE = 0;
 const ACTIVE = 1;
 const DONE = 2;
 
-const emitter = () => {
+const emitter = ({ immediate = false } = {}) => {
   let state = IDLE;
+  let last = null;
   const opens = new Set();
   const nexts = new Set();
   const fails = new Set();
@@ -23,6 +24,7 @@ const emitter = () => {
   };
 
   const next = value => {
+    last = value;
     if (state === ACTIVE) for (const next of nexts.values()) next(value);
   };
 
@@ -42,7 +44,10 @@ const emitter = () => {
 
   const observable = create((open, next, fail, done, talkback) => {
     if (state === IDLE) opens.add(open);
-    else if (state === ACTIVE) open();
+    else if (state === ACTIVE) {
+      open();
+      if (immediate) next(last);
+    }
 
     nexts.add(next);
     fails.add(fail);

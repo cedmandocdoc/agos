@@ -1,8 +1,8 @@
-import Observable, {
+import Stream, {
   Operator,
   CancelInterceptor,
   TalkbackCancelInterceptor
-} from "./Observable";
+} from "./Stream";
 import chain from "./operators/chain";
 import collect from "./operators/collect";
 import collectLatest from "./operators/collectLatest";
@@ -36,7 +36,7 @@ import tap from "./operators/tap";
 import throttle from "./operators/throttle";
 
 export {
-  Observable,
+  Stream,
   Operator,
   CancelInterceptor,
   TalkbackCancelInterceptor,

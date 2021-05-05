@@ -1,4 +1,4 @@
-import Observable, { Operator, CancelInterceptor } from "../Observable";
+import Stream, { Operator, CancelInterceptor } from "../Stream";
 import tap from "./tap";
 import never from "./never";
 
@@ -8,10 +8,10 @@ class SwitchMap extends Operator {
     this.projects = projects;
   }
 
-  static join(observable, projects) {
-    return observable instanceof SwitchMap
-      ? new SwitchMap(observable.source, [...observable.projects, ...projects])
-      : super.join(observable, projects);
+  static join(stream, projects) {
+    return stream instanceof SwitchMap
+      ? new SwitchMap(stream.source, [...stream.projects, ...projects])
+      : super.join(stream, projects);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -25,9 +25,9 @@ class SwitchMap extends Operator {
       const cancel = cancels[index];
       cancel.run();
       const project = this.projects[index];
-      const observable = project(value);
+      const stream = project(value);
 
-      observable.listen(
+      stream.listen(
         () => active++,
         index >= this.projects.length - 1 ? next : run(index + 1),
         fail,
@@ -46,7 +46,7 @@ class SwitchMap extends Operator {
         if (active <= 0) done(cancelled);
       },
       tap(payload => {
-        if (payload[0] === Observable.CANCEL) {
+        if (payload === Stream.CANCEL) {
           for (let index = 0; index < cancels.length; index++) {
             const cancel = cancels[index];
             cancel.run();
@@ -57,7 +57,7 @@ class SwitchMap extends Operator {
   }
 }
 
-const switchMap = project => observable =>
-  SwitchMap.join(observable, [project]);
+const switchMap = project => stream =>
+  SwitchMap.join(stream, [project]);
 
 export default switchMap;

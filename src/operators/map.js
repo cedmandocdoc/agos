@@ -1,4 +1,4 @@
-import { Operator } from "../Observable";
+import { Operator } from "../Stream";
 
 class Map extends Operator {
   constructor(source, project) {
@@ -6,10 +6,10 @@ class Map extends Operator {
     this.project = project;
   }
 
-  static join(observable, project) {
-    return observable instanceof Map
-      ? new Map(observable.source, value => project(observable.project(value)))
-      : super.join(observable, project);
+  static join(stream, project) {
+    return stream instanceof Map
+      ? new Map(stream.source, value => project(stream.project(value)))
+      : super.join(stream, project);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -17,6 +17,6 @@ class Map extends Operator {
   }
 }
 
-const map = project => observable => Map.join(observable, project);
+const map = project => stream => Map.join(stream, project);
 
 export default map;

@@ -1,6 +1,6 @@
-const { create, never, Observable } = require("../dist/agos.cjs");
+const { create, never, Stream } = require("../dist/agos.cjs");
 
-const noop = () => {};
+const noop = () => { };
 
 const interval = (duration, take = Infinity) =>
   create((open, next, fail, done, talkback) => {
@@ -17,7 +17,7 @@ const interval = (duration, take = Infinity) =>
     talkback.listen(
       noop,
       payload => {
-        if (payload[0] === Observable.CANCEL) {
+        if (payload === Stream.CANCEL) {
           clearInterval(id);
           done(true);
         }

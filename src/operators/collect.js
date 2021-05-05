@@ -1,6 +1,6 @@
 import emitter from "./emitter";
 import never from "./never";
-import { Operator, CancelInterceptor } from "../Observable";
+import { Operator, CancelInterceptor } from "../Stream";
 import { noop } from "../utils";
 
 class Collect extends Operator {
@@ -46,6 +46,6 @@ class Collect extends Operator {
   }
 }
 
-const collect = pipes => observable => Collect.join(observable, pipes);
+const collect = pipes => stream => Collect.join(stream, pipes);
 
 export default collect;

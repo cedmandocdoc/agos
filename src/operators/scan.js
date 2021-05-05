@@ -1,4 +1,4 @@
-import { Operator } from "../Observable";
+import { Operator } from "../Stream";
 
 class Scan extends Operator {
   constructor(source, accumulator, seed) {

@@ -1,4 +1,4 @@
-import { Operator } from "../Observable";
+import { Operator } from "../Stream";
 
 class Throttle extends Operator {
   constructor(source, tick) {
@@ -6,12 +6,12 @@ class Throttle extends Operator {
     this.tick = tick;
   }
 
-  static join(observable, tick) {
-    return observable instanceof Throttle
-      ? new Throttle(observable.source, (release, data) =>
-          observable.tick(() => tick(release, data), data)
-        )
-      : super.join(observable, tick);
+  static join(stream, tick) {
+    return stream instanceof Throttle
+      ? new Throttle(stream.source, (release, data) =>
+        stream.tick(() => tick(release, data), data)
+      )
+      : super.join(stream, tick);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -33,6 +33,6 @@ class Throttle extends Operator {
   }
 }
 
-const throttle = tick => observable => Throttle.join(observable, tick);
+const throttle = tick => stream => Throttle.join(stream, tick);
 
 export default throttle;

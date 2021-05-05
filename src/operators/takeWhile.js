@@ -1,4 +1,4 @@
-import { Operator, CancelInterceptor } from "../Observable";
+import { Operator, CancelInterceptor } from "../Stream";
 
 class TakeWhile extends Operator {
   constructor(source, predicate) {
@@ -6,14 +6,14 @@ class TakeWhile extends Operator {
     this.predicate = predicate;
   }
 
-  static join(observable, predicate) {
-    return observable instanceof TakeWhile
-      ? new TakeWhile(observable.source, value => {
-          const [included, inclusive] = observable.predicate(value);
-          if (!included) return [included, inclusive];
-          return predicate(value);
-        })
-      : super.join(observable, predicate);
+  static join(stream, predicate) {
+    return stream instanceof TakeWhile
+      ? new TakeWhile(stream.source, value => {
+        const [included, inclusive] = stream.predicate(value);
+        if (!included) return [included, inclusive];
+        return predicate(value);
+      })
+      : super.join(stream, predicate);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -36,7 +36,7 @@ class TakeWhile extends Operator {
   }
 }
 
-const takeWhile = (predicate, inclusive = false) => observable =>
-  TakeWhile.join(observable, value => [predicate(value), inclusive]);
+const takeWhile = (predicate, inclusive = false) => stream =>
+  TakeWhile.join(stream, value => [predicate(value), inclusive]);
 
 export default takeWhile;

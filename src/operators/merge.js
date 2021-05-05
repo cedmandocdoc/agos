@@ -1,16 +1,16 @@
 import create from "./create";
 import never from "./never";
-import Observable, { CancelInterceptor } from "../Observable";
+import Stream, { CancelInterceptor } from "../Stream";
 import { noop } from "../utils";
 
-const merge = (observables, withIndex = false) =>
+const merge = (streams, withIndex = false) =>
   create((open, next, fail, done, talkback) => {
     const closed = [];
     const cancels = [];
     talkback.listen(
       noop,
       payload => {
-        if (payload[0] === Observable.CANCEL) {
+        if (payload === Stream.CANCEL) {
           for (let index = 0; index < cancels.length; index++) {
             const cancel = cancels[index];
             cancel.run();
@@ -22,18 +22,18 @@ const merge = (observables, withIndex = false) =>
       noop,
       never()
     );
-    for (let index = 0; index < observables.length; index++) {
-      const observable = observables[index];
+    for (let index = 0; index < streams.length; index++) {
+      const stream = streams[index];
       const cancel = CancelInterceptor.join(never());
       cancels[index] = cancel;
       closed[index] = false;
-      observable.listen(
+      stream.listen(
         open,
         value => next(withIndex ? [value, index] : value),
         error => fail(withIndex ? [error, index] : error),
         () => {
           closed[index] = true;
-          if (closed.length !== observables.length) return;
+          if (closed.length !== streams.length) return;
           let allClosed = true;
           for (let index = 0; index < closed.length; index++) {
             if (!closed[index]) {

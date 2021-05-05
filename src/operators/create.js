@@ -1,5 +1,5 @@
-import Observable from "../Observable";
+import Stream from "../Stream";
 
-const create = source => new Observable(source);
+const create = source => new Stream(source);
 
 export default create;

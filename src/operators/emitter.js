@@ -1,6 +1,6 @@
 import create from "./create";
 import never from "./never";
-import Observable from "../Observable";
+import Stream from "../Stream";
 import { noop } from "../utils";
 
 const IDLE = 0;
@@ -42,7 +42,7 @@ const emitter = ({ immediate = false } = {}) => {
     }
   };
 
-  const observable = create((open, next, fail, done, talkback) => {
+  const stream = create((open, next, fail, done, talkback) => {
     if (state === IDLE) opens.add(open);
     else if (state === ACTIVE) {
       open();
@@ -55,7 +55,7 @@ const emitter = ({ immediate = false } = {}) => {
     talkback.listen(
       noop,
       payload => {
-        if (payload[0] === Observable.CANCEL) {
+        if (payload === Stream.CANCEL) {
           nexts.delete(next);
           fails.delete(fail);
           dones.delete(done);
@@ -75,7 +75,7 @@ const emitter = ({ immediate = false } = {}) => {
       fail,
       done
     },
-    observable
+    stream
   ];
 };
 

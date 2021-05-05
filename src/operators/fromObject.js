@@ -1,6 +1,6 @@
 import create from "./create";
 import never from "./never";
-import Observable from "../Observable";
+import Stream from "../Stream";
 import { noop } from "../utils";
 
 const fromObject = object =>
@@ -9,7 +9,7 @@ const fromObject = object =>
     talkback.listen(
       noop,
       payload => {
-        if (payload[0] === Observable.CANCEL) {
+        if (payload === Stream.CANCEL) {
           cancelled = true;
           done(true);
         }

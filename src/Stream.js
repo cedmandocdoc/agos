@@ -4,7 +4,7 @@ const IDLE = 0;
 const ACTIVE = 1;
 const DONE = 2;
 
-class Observable {
+class Stream {
   constructor(source) {
     this.source = source;
   }
@@ -43,12 +43,12 @@ class Observable {
   }
 }
 
-Observable.CANCEL = Symbol("cancel");
+Stream.CANCEL = Symbol("cancel");
 
-export class Operator extends Observable {
-  static join(observable, ...args) {
+export class Operator extends Stream {
+  static join(stream, ...args) {
     return new this((open, next, fail, done, talkback) => {
-      observable.listen(open, next, fail, done, talkback);
+      stream.listen(open, next, fail, done, talkback);
     }, ...args);
   }
 }
@@ -60,7 +60,7 @@ export class CancelInterceptor extends Operator {
   }
 
   listen(open, next, fail, done, talkback) {
-    this.run = () => next([Observable.CANCEL]);
+    this.run = () => next(Stream.CANCEL);
     this.source(open, next, fail, done, talkback);
   }
 }
@@ -78,4 +78,4 @@ export class TalkbackCancelInterceptor extends Operator {
   }
 }
 
-export default Observable;
+export default Stream;

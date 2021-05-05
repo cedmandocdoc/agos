@@ -1,16 +1,16 @@
 import create from "./create";
 import never from "./never";
-import Observable, { CancelInterceptor } from "../Observable";
+import Stream, { CancelInterceptor } from "../Stream";
 import { noop } from "../utils";
 
-const concat = observables =>
+const concat = streams =>
   create((open, next, fail, done, talkback) => {
     const cancel = CancelInterceptor.join(never());
 
     talkback.listen(
       noop,
       payload => {
-        if (payload[0] === Observable.CANCEL) {
+        if (payload === Stream.CANCEL) {
           cancel.run();
           done(true);
         }
@@ -21,13 +21,13 @@ const concat = observables =>
     );
 
     const run = index => {
-      const observable = observables[index];
-      observable.listen(
+      const stream = streams[index];
+      stream.listen(
         index === 0 ? open : noop,
         next,
         fail,
         () => {
-          if (index >= observables.length - 1) return done(false);
+          if (index >= streams.length - 1) return done(false);
           run(index + 1);
         },
         cancel

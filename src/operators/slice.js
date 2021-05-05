@@ -1,4 +1,4 @@
-import { Operator, CancelInterceptor } from "../Observable";
+import { Operator, CancelInterceptor } from "../Stream";
 
 class Slice extends Operator {
   constructor(source, start = 0, end = Infinity) {
@@ -7,14 +7,14 @@ class Slice extends Operator {
     this.end = end;
   }
 
-  static join(observable, start = 0, end = Infinity) {
-    return observable instanceof Slice
+  static join(stream, start = 0, end = Infinity) {
+    return stream instanceof Slice
       ? new Slice(
-          observable.source,
-          start < 0 ? start : observable.start + start,
-          end < observable.end ? end : observable.end
-        )
-      : super.join(observable, start, end);
+        stream.source,
+        start < 0 ? start : stream.start + start,
+        end < stream.end ? end : stream.end
+      )
+      : super.join(stream, start, end);
   }
 
   listen(open, next, fail, done, talkback) {

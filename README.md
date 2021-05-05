@@ -17,28 +17,29 @@ npm install agos
 ## Example
 
 ```js
-import { create, never, listen, CANCEL } from "agos";
-
-const noop = () => {};
+import Stream, { pipe, create, filter, subscribe } from "agos";
 
 // create main source
 const interval = create((open, next, fail, done, talkback) => {
   let count = 0;
   // propagate data
   const id = setInterval(() => next(++count), 100);
-  const clear = payload => {
-    if (payload[0] === CANCEL) {
-      clearInterval(id);
-      done(true);
-    }
-  };
 
-  // talkback is a data source come
-  // from the outside, this enable
-  // the main source to be reactive
-  // on cancellation or anything,
-  // depending on the implemnentaion
-  talkback.listen(noop, clear, noop, noop, never);
+  // talkback is another stream that comes
+  // from the outside this enable the main
+  // source to be reactive on cancellation
+  // or anything depending on the implementaion,
+  // see that this piped stream filters only data
+  // that pertains to Stream cancellation stopping
+  // the data propagation
+  pipe(
+    talkback,
+    filter(data => data === Stream.CANCEL),
+    subscribe(() => {
+      clearInterval(id);
+      done(true)
+    })
+  )
   open();
 });
 
@@ -47,18 +48,22 @@ const cancel = create((open, next, fail, done) => {
   open();
   setTimeout(() => {
     // propagates CANCEL
-    next([CANCEL]);
+    next(Stream.CANCEL);
     done(false);
   }, 500);
 });
 
-// listen to main source
-interval.listen(
-  () => console.log("open"),
-  value => console.log(value),
-  error => console.log(error),
-  cancelled => console.log("done", "cancelled", cancelled),
-  cancel // provide the cancel source
+// listen to main source and 
+// passing the cancel source to
+// subscribe function
+pipe(
+  interval,
+  subscribe({
+    open: () => console.log("open"),
+    next: value => console.log(value),
+    fail: error => console.log(error),
+    done: cancelled => console.log("done", "cancelled", cancelled),
+  }, cancel)
 );
 
 // logs

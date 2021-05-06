@@ -57,7 +57,6 @@ class SwitchMap extends Operator {
   }
 }
 
-const switchMap = project => stream =>
-  SwitchMap.join(stream, [project]);
+const switchMap = project => stream => SwitchMap.join(stream, [project]);
 
 export default switchMap;

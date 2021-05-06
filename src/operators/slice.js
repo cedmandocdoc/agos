@@ -10,10 +10,10 @@ class Slice extends Operator {
   static join(stream, start = 0, end = Infinity) {
     return stream instanceof Slice
       ? new Slice(
-        stream.source,
-        start < 0 ? start : stream.start + start,
-        end < stream.end ? end : stream.end
-      )
+          stream.source,
+          start < 0 ? start : stream.start + start,
+          end < stream.end ? end : stream.end
+        )
       : super.join(stream, start, end);
   }
 

@@ -9,9 +9,9 @@ class Filter extends Operator {
   static join(stream, predicate) {
     return stream instanceof Filter
       ? new Filter(
-        stream.source,
-        value => stream.predicate(value) && predicate(value)
-      )
+          stream.source,
+          value => stream.predicate(value) && predicate(value)
+        )
       : super.join(stream, predicate);
   }
 

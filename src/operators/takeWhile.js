@@ -9,10 +9,10 @@ class TakeWhile extends Operator {
   static join(stream, predicate) {
     return stream instanceof TakeWhile
       ? new TakeWhile(stream.source, value => {
-        const [included, inclusive] = stream.predicate(value);
-        if (!included) return [included, inclusive];
-        return predicate(value);
-      })
+          const [included, inclusive] = stream.predicate(value);
+          if (!included) return [included, inclusive];
+          return predicate(value);
+        })
       : super.join(stream, predicate);
   }
 

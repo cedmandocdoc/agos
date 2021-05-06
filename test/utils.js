@@ -1,6 +1,6 @@
 const { create, never, Stream } = require("../dist/agos.cjs");
 
-const noop = () => { };
+const noop = () => {};
 
 const interval = (duration, take = Infinity) =>
   create((open, next, fail, done, talkback) => {

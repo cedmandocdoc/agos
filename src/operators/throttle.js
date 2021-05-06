@@ -9,8 +9,8 @@ class Throttle extends Operator {
   static join(stream, tick) {
     return stream instanceof Throttle
       ? new Throttle(stream.source, (release, data) =>
-        stream.tick(() => tick(release, data), data)
-      )
+          stream.tick(() => tick(release, data), data)
+        )
       : super.join(stream, tick);
   }
 

@@ -3,6 +3,7 @@ import Stream, {
   CancelInterceptor,
   TalkbackCancelInterceptor
 } from "./Stream";
+import ap from "./operators/ap";
 import chain from "./operators/chain";
 import collect from "./operators/collect";
 import collectLatest from "./operators/collectLatest";
@@ -40,6 +41,7 @@ export {
   Operator,
   CancelInterceptor,
   TalkbackCancelInterceptor,
+  ap,
   chain,
   collect,
   collectLatest,

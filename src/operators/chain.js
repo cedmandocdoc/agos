@@ -8,10 +8,10 @@ class Chain extends Operator {
     this.projects = projects;
   }
 
-  static join(stream, projects) {
+  static join(stream, project) {
     return stream instanceof Chain
-      ? new Chain(stream.source, [...stream.projects, ...projects])
-      : super.join(stream, projects);
+      ? new Chain(stream.source, [...stream.projects, project])
+      : super.join(stream, [project]);
   }
 
   listen(open, next, fail, done, talkback) {
@@ -52,6 +52,6 @@ class Chain extends Operator {
   }
 }
 
-const chain = (...projects) => stream => Chain.join(stream, projects);
+const chain = project => stream => Chain.join(stream, project);
 
 export default chain;

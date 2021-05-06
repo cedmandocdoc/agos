@@ -83,19 +83,3 @@ describe("ap", () => {
     expect(received).toEqual([3, 4, 5, 6]);
   });
 });
-
-// pipe(
-//   interval(100, 3),
-//   ap(
-//     pipe(
-//       interval(200, 3),
-//       map(a => b => a + b)
-//     )
-//   ),
-//   listen(
-//     () => console.log('open'),
-//     d => console.log(d, 'asd'),
-//     e => console.log('error'),
-//     c => console.log(c, 'done')
-//   )
-// );

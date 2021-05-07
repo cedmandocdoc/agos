@@ -1,40 +1,44 @@
-import create from "./create";
-import never from "./never";
-import Stream, { CancelInterceptor } from "../Stream";
+import { Operator } from "../Stream";
 import { noop } from "../utils";
 
-const concat = streams =>
-  create((open, next, fail, done, talkback) => {
-    const cancel = CancelInterceptor.join(never());
+class Concat extends Operator {
+  constructor(source, streams) {
+    super(source);
+    this.streams = streams;
+  }
 
-    talkback.listen(
-      noop,
-      payload => {
-        if (payload === Stream.CANCEL) {
-          cancel.run();
-          done(true);
-        }
-      },
-      noop,
-      noop,
-      never()
-    );
+  static join(stream, concatStream) {
+    return stream instanceof Concat
+      ? new Concat(stream.source, [...stream.streams, concatStream])
+      : super.join(stream, [concatStream]);
+  }
 
+  listen(open, next, fail, done, talkback) {
     const run = index => {
-      const stream = streams[index];
+      const stream = this.streams[index];
       stream.listen(
-        index === 0 ? open : noop,
+        noop,
         next,
         fail,
-        () => {
-          if (index >= streams.length - 1) return done(false);
-          run(index + 1);
-        },
-        cancel
+        () => (index >= this.streams.length - 1 ? done(false) : run(index + 1)),
+        talkback
       );
     };
 
-    run(0);
-  });
+    this.source(
+      open,
+      next,
+      fail,
+      () => (this.streams.length === 0 ? done(false) : run(0)),
+      talkback
+    );
+  }
+}
+
+// function overloading for creating stream or using as an operator
+const concat = streams =>
+  Array.isArray(streams) && streams.length
+    ? new Concat(streams[0].source, streams.slice(1))
+    : stream => Concat.join(stream, streams);
 
 export default concat;

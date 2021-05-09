@@ -54,7 +54,7 @@ describe("Stream", () => {
   });
 
   it("should implement interoperability of observable throwing an error", () => {
-    const next = jest.fn(value => received.push(value));
+    const next = jest.fn(() => {});
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 

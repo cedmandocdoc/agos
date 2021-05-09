@@ -9,7 +9,7 @@ describe("never", () => {
 
     pipe(
       never(),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     expect(open).toHaveBeenCalledTimes(0);

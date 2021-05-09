@@ -19,7 +19,7 @@ describe("throttle", () => {
     pipe(
       interval(100, 3),
       throttle(tick),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(400);
@@ -48,7 +48,7 @@ describe("throttle", () => {
     pipe(
       interval(100, 3),
       throttle(tick),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);

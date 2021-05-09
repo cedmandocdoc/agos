@@ -15,7 +15,7 @@ describe("slice", () => {
     pipe(
       interval(100, 10),
       slice(4, 8),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);
@@ -38,7 +38,7 @@ describe("slice", () => {
     pipe(
       interval(100, 10),
       slice(4),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);
@@ -61,7 +61,7 @@ describe("slice", () => {
     pipe(
       interval(100, 10),
       slice(0, 4),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);
@@ -84,7 +84,7 @@ describe("slice", () => {
     pipe(
       interval(100, 10),
       slice(-4),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);
@@ -107,7 +107,7 @@ describe("slice", () => {
     pipe(
       interval(100, 10),
       slice(0, -4),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);
@@ -130,7 +130,7 @@ describe("slice", () => {
     pipe(
       interval(100, 10),
       slice(-7, -5),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);

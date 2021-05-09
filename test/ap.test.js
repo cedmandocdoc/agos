@@ -15,7 +15,7 @@ describe("ap", () => {
     pipe(
       interval(100, 3),
       ap(of(value => value + 1)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -43,7 +43,7 @@ describe("ap", () => {
           map(([value]) => value)
         )
       ),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -71,7 +71,7 @@ describe("ap", () => {
           map(a => b => a + b)
         )
       ),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);

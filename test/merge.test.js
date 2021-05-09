@@ -14,7 +14,7 @@ describe("merge", () => {
 
     pipe(
       merge([interval(100, 3), interval(200, 2)]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(400);
@@ -35,7 +35,7 @@ describe("merge", () => {
 
     pipe(
       merge([interval(100, 3), interval(200, 2)], true),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(400);
@@ -56,7 +56,7 @@ describe("merge", () => {
 
     pipe(
       merge([interval(100, 3), of(1)]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -77,7 +77,7 @@ describe("merge", () => {
 
     pipe(
       merge([of(1), of(2)]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -100,7 +100,7 @@ describe("merge", () => {
 
     pipe(
       merge([interval(100, 3), project(interval(200, 2))]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(400);

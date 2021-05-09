@@ -15,7 +15,7 @@ describe("chain", () => {
     pipe(
       interval(100, 1),
       chain(() => interval(200, 1)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -38,7 +38,7 @@ describe("chain", () => {
     pipe(
       interval(100, 1),
       chain(() => interval(200, 2)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(500);
@@ -62,7 +62,7 @@ describe("chain", () => {
       interval(100, 1),
       chain(() => interval(200, 1)),
       chain(() => interval(300, 1)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(600);
@@ -86,7 +86,7 @@ describe("chain", () => {
       interval(100, 1),
       chain(() => interval(200, 2)),
       chain(() => interval(300, 3)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1400);
@@ -114,7 +114,7 @@ describe("chain", () => {
       chain(() => interval(200, 2)),
       chain(() => project),
       chain(() => interval(300, 3)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1400);
@@ -143,7 +143,7 @@ describe("chain", () => {
       interval(100, 1),
       chain(() => project(interval(200, 2))),
       chain(() => project(interval(300, 3))),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1400);

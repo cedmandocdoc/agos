@@ -15,7 +15,7 @@ describe("switchMap", () => {
     pipe(
       interval(100, 1),
       switchMap(() => interval(200, 1)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -38,7 +38,7 @@ describe("switchMap", () => {
     pipe(
       interval(100, 1),
       switchMap(() => interval(200, 2)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(500);
@@ -62,7 +62,7 @@ describe("switchMap", () => {
       interval(100, 1),
       switchMap(() => interval(200, 1)),
       switchMap(() => interval(300, 1)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(600);
@@ -86,7 +86,7 @@ describe("switchMap", () => {
       interval(100, 1),
       switchMap(() => interval(200, 2)),
       switchMap(() => interval(300, 3)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(2000);
@@ -109,7 +109,7 @@ describe("switchMap", () => {
     pipe(
       interval(300, 2), // 300 or 201?
       switchMap(() => interval(100, 2)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(5000);
@@ -137,7 +137,7 @@ describe("switchMap", () => {
       switchMap(() => interval(200, 2)),
       switchMap(() => project),
       switchMap(() => interval(300, 3)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1400);
@@ -166,7 +166,7 @@ describe("switchMap", () => {
       interval(100, 1),
       switchMap(() => project(interval(200, 2))),
       switchMap(() => project(interval(300, 3))),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1400);

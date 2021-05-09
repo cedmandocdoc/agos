@@ -1,12 +1,10 @@
 import never from "./never";
 import { noop } from "../utils";
 
-const listen = (
-  open = noop,
-  next = noop,
-  fail = noop,
-  done = noop,
-  talkback = never()
-) => stream => stream.listen(open, next, fail, done, talkback);
+const listen = (sink, talkback = never()) => stream => {
+  if (typeof sink === "function")
+    return stream.listen(noop, sink, noop, noop, talkback);
+  return stream.listen(sink.open, sink.next, sink.fail, sink.done, talkback);
+};
 
 export default listen;

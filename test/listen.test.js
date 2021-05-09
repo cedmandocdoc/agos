@@ -1,12 +1,12 @@
 const {
   pipe,
-  subscribe,
+  listen,
   of,
   never,
   CancelInterceptor
 } = require("../dist/agos.cjs");
 
-describe("subscribe", () => {
+describe("listen", () => {
   it("should accept single function and work as next", () => {
     const received = [];
 
@@ -14,7 +14,7 @@ describe("subscribe", () => {
 
     pipe(
       of(1),
-      subscribe(next)
+      listen(next)
     );
 
     expect(next).toHaveBeenCalledTimes(1);
@@ -31,7 +31,7 @@ describe("subscribe", () => {
 
     pipe(
       of(1),
-      subscribe({ open, next, fail, done })
+      listen({ open, next, fail, done })
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -52,7 +52,7 @@ describe("subscribe", () => {
 
     pipe(
       of(1),
-      subscribe({ open, next, fail, done }, cancel)
+      listen({ open, next, fail, done }, cancel)
     );
 
     expect(open).toHaveBeenCalledTimes(1);

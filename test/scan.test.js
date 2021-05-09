@@ -16,7 +16,7 @@ describe("scan", () => {
     pipe(
       interval(100, 3),
       scan(accumulator, 0),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -44,7 +44,7 @@ describe("scan", () => {
     pipe(
       interval(100, 3),
       scan(accumulator, 0),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);

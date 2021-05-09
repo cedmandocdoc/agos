@@ -1,11 +1,11 @@
-const $$observable = require('symbol-observable').default;
-const { pipe, map } = require('../dist/agos.cjs');
-const { interval } = require('./utils');
+const $$observable = require("symbol-observable").default;
+const { pipe, map } = require("../dist/agos.cjs");
+const { interval } = require("./utils");
 
 jest.useFakeTimers();
 
 describe("Stream", () => {
-  it('should implement interoperability in observable', () => {
+  it("should implement interoperability in observable", () => {
     const received = [];
 
     const next = jest.fn(value => received.push(value));
@@ -26,9 +26,9 @@ describe("Stream", () => {
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
     expect(received).toEqual([1, 2, 3]);
-  })
+  });
 
-  it('should implement interoperability of observable subscription', () => {
+  it("should implement interoperability of observable subscription", () => {
     const received = [];
 
     const next = jest.fn(value => received.push(value));
@@ -51,9 +51,9 @@ describe("Stream", () => {
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
     expect(received).toEqual([1, 2]);
-  })
+  });
 
-  it('should implement interoperability of observable throwing an error', () => {
+  it("should implement interoperability of observable throwing an error", () => {
     const next = jest.fn(value => received.push(value));
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
@@ -76,5 +76,5 @@ describe("Stream", () => {
     expect(next).toHaveBeenCalledTimes(0);
     expect(fail).toHaveBeenCalledTimes(3);
     expect(done).toHaveBeenCalledTimes(1);
-  })
-})
+  });
+});

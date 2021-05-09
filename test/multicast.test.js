@@ -27,12 +27,12 @@ describe("multicast", () => {
 
     pipe(
       source,
-      listen(open1, next1, fail1, done1)
+      listen({ open: open1, next: next1, fail: fail1, done: done1 })
     );
 
     pipe(
       source,
-      listen(open2, next2, fail2, done2)
+      listen({ open: open2, next: next2, fail: fail2, done: done2 })
     );
 
     jest.advanceTimersByTime(300);
@@ -68,12 +68,12 @@ describe("multicast", () => {
 
     pipe(
       source,
-      listen(open1, next1, fail1, done1)
+      listen({ open: open1, next: next1, fail: fail1, done: done1 })
     );
 
     pipe(
       source,
-      listen(open2, next2, fail2, done2, cancel)
+      listen({ open: open2, next: next2, fail: fail2, done: done2 }, cancel)
     );
 
     setTimeout(() => cancel.run(), 200);

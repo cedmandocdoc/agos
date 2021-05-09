@@ -14,7 +14,7 @@ describe("mergeLatest", () => {
 
     pipe(
       mergeLatest([interval(100, 3), interval(200, 2)]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(400);
@@ -40,7 +40,7 @@ describe("mergeLatest", () => {
 
     pipe(
       mergeLatest([interval(100, 3), project(interval(200, 2))]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(400);

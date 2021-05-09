@@ -17,7 +17,7 @@ describe("of", () => {
 
     pipe(
       of(1),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -37,7 +37,7 @@ describe("of", () => {
 
     pipe(
       of(1),
-      listen(open, next, fail, done, cancel)
+      listen({ open, next, fail, done }, cancel)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -59,7 +59,7 @@ describe("of", () => {
 
     pipe(
       of(1),
-      listen(open, next, fail, done, cancel)
+      listen({ open, next, fail, done }, cancel)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -79,7 +79,7 @@ describe("of", () => {
 
     pipe(
       of(1),
-      listen(open, next, fail, done, cancel)
+      listen({ open, next, fail, done }, cancel)
     );
 
     cancel.run();

@@ -16,7 +16,7 @@ describe("map", () => {
     pipe(
       interval(100, 3),
       map(project),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -45,7 +45,7 @@ describe("map", () => {
     pipe(
       interval(100, 3),
       map(project),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);

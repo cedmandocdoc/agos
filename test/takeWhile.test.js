@@ -16,7 +16,7 @@ describe("takeWhile", () => {
     pipe(
       interval(100, 3),
       takeWhile(period),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -41,7 +41,7 @@ describe("takeWhile", () => {
     pipe(
       interval(100, 5),
       takeWhile(period, true),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -68,7 +68,7 @@ describe("takeWhile", () => {
       interval(100, 5),
       takeWhile(firstPeriod),
       takeWhile(secondPeriod),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -96,7 +96,7 @@ describe("takeWhile", () => {
       interval(100, 5),
       takeWhile(firstPeriod),
       takeWhile(secondPeriod),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -124,7 +124,7 @@ describe("takeWhile", () => {
       interval(100, 5),
       takeWhile(firstPeriod, true),
       takeWhile(secondPeriod),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -152,7 +152,7 @@ describe("takeWhile", () => {
       interval(100, 5),
       takeWhile(firstPeriod),
       takeWhile(secondPeriod, true),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);
@@ -182,7 +182,7 @@ describe("takeWhile", () => {
     pipe(
       interval(100, 3),
       takeWhile(period),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(400);

@@ -14,7 +14,7 @@ describe("concat", () => {
 
     pipe(
       concat([interval(100, 3), interval(200, 2)]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(700);
@@ -36,7 +36,7 @@ describe("concat", () => {
     pipe(
       interval(100, 3),
       concat(interval(200, 2)),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);
@@ -61,7 +61,7 @@ describe("concat", () => {
 
     pipe(
       concat([interval(100, 3), project(interval(200, 2))]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(700);

@@ -19,7 +19,7 @@ describe("create", () => {
 
     pipe(
       source,
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     expect(open).toHaveBeenCalledTimes(0);
@@ -44,7 +44,7 @@ describe("create", () => {
 
     pipe(
       source,
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -76,7 +76,7 @@ describe("create", () => {
 
     pipe(
       source,
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(1000);
@@ -134,7 +134,7 @@ describe("create", () => {
 
     pipe(
       source,
-      listen(open, next, fail, done, talkback)
+      listen({ open, next, fail, done }, talkback)
     );
 
     expect(open).toHaveBeenCalledTimes(1);
@@ -194,7 +194,7 @@ describe("create", () => {
 
     pipe(
       source,
-      listen(open, next, fail, done, talkback)
+      listen({ open, next, fail, done }, talkback)
     );
 
     expect(open).toHaveBeenCalledTimes(1);

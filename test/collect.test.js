@@ -15,7 +15,7 @@ describe("collect", () => {
     pipe(
       interval(100, 3),
       collect([map(v => v + "a"), map(v => v + "b")]),
-      listen(open, next, fail, done)
+      listen({ open, next, fail, done })
     );
 
     jest.advanceTimersByTime(300);

@@ -46,5 +46,8 @@
     "rollup": "^1.26.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "dependencies": {
+    "symbol-observable": "^4.0.0"
   }
 }

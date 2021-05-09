@@ -1,3 +1,5 @@
+import $$observable from "symbol-observable";
+import { observable } from "./interoperability";
 import { noop } from "./utils";
 
 const IDLE = 0;
@@ -7,6 +9,10 @@ const DONE = 2;
 class Stream {
   constructor(source) {
     this.source = source;
+  }
+
+  [$$observable]() {
+    return observable(this);
   }
 
   listen(open, next, fail, done, talkback) {

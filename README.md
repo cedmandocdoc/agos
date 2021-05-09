@@ -4,7 +4,7 @@ JavaScript utility for data flow composition.
 
 ## Overview
 
-Agos `(Filipino translation of Stream)` is a utility library that helps the data flow to be composed in a functional manner. It is inspired by other reactive libraries like RxJS, xstream and mostjs but with one key difference, the data source is naturally interactive. The general idea of the library is base on the article [Redefining Observarble](https://github.com/cedmandocdoc/redefining-observable), basically, it enables the data source to be reactive with an outside entity like an observer. It is also implements [Fantasy Land](https://github.com/fantasyland/fantasy-land) `Semigroup`, `Monoid`, `Functor`, `Apply`, `Applicative`, `Chain` and `Monad`.
+Agos `(Filipino translation of Stream)` is a utility library that helps the data flow to be composed in a functional manner. It is inspired by other reactive libraries like RxJS, xstream and mostjs but with one key difference, the data source is naturally interactive. The general idea of the library is base on the article [Redefining Observarble](https://github.com/cedmandocdoc/redefining-observable), basically, it enables the data source to be reactive with an outside entity like an observer. It is also implements [Fantasy Land](https://github.com/fantasyland/fantasy-land) `Semigroup`, `Monoid`, `Functor`, `Apply`, `Applicative`, `Chain`, `Monad` and has interoperability in [Observable](https://github.com/tc39/proposal-observable).
 
 ## Installation
 
@@ -17,7 +17,7 @@ npm install agos
 ## Example
 
 ```js
-import Stream, { pipe, create, filter, subscribe } from "agos";
+import Stream, { pipe, create, filter, listen } from "agos";
 
 // create main source
 const interval = create((open, next, fail, done, talkback) => {
@@ -35,7 +35,7 @@ const interval = create((open, next, fail, done, talkback) => {
   pipe(
     talkback,
     filter(data => data === Stream.CANCEL),
-    subscribe(() => {
+    listen(() => {
       clearInterval(id);
       done(true)
     })
@@ -55,10 +55,10 @@ const cancel = create((open, next, fail, done) => {
 
 // listen to main source and 
 // passing the cancel source to
-// subscribe function
+// listen function
 pipe(
   interval,
-  subscribe({
+  listen({
     open: () => console.log("open"),
     next: value => console.log(value),
     fail: error => console.log(error),

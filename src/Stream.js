@@ -1,5 +1,4 @@
 import $$observable from "symbol-observable";
-import { observable } from "./interoperability";
 import { noop } from "./utils";
 
 const IDLE = 0;
@@ -11,8 +10,26 @@ class Stream {
     this.source = source;
   }
 
+  // observable interoperability
   [$$observable]() {
-    return observable(this);
+    return {
+      subscribe: observer => {
+        const sink = { next: noop, error: noop, complete: noop };
+
+        if (typeof observer === "function") sink.next = observer;
+        else {
+          sink.next = observer.next;
+          sink.error = observer.error;
+          sink.complete = observer.complete;
+        }
+
+        const cancel = CancelInterceptor.join(new Stream(open => open()));
+
+        this.listen(noop, sink.next, sink.error, sink.complete, cancel);
+
+        return { unsubscribe: () => cancel.run() };
+      }
+    };
   }
 
   listen(open, next, fail, done, talkback) {

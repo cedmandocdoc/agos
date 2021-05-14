@@ -3,7 +3,7 @@ import empty from "./empty";
 import Stream from "../Stream";
 import { noop } from "../utils";
 
-const fromArray = array =>
+const fromArray = (array, withIndex) =>
   create((open, next, fail, done, talkback) => {
     let cancelled = false;
     talkback.listen(
@@ -19,9 +19,11 @@ const fromArray = array =>
       empty()
     );
     open();
+
     for (let index = 0; index < array.length; index++) {
       if (cancelled) break;
-      next([array[index], index]);
+      const value = array[index];
+      next(withIndex ? [value, index] : value);
     }
     done(false);
   });

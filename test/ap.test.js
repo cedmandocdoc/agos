@@ -37,12 +37,7 @@ describe("ap", () => {
 
     pipe(
       interval(100, 3),
-      ap(
-        pipe(
-          fromArray([value => value + 1, value => value + 2]),
-          map(([value]) => value)
-        )
-      ),
+      ap(fromArray([value => value + 1, value => value + 2])),
       listen({ open, next, fail, done })
     );
 

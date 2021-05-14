@@ -31,7 +31,7 @@ describe("mergeLatest", () => {
 
     const open = jest.fn();
     const next = jest.fn(value => expect(value).toEqual(expected.shift()));
-    const fail = jest.fn(value => expect(value).toEqual([error, 1]));
+    const fail = jest.fn(value => expect(value).toEqual(error));
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
     const project = map(value => {
       if (value === 2) throw error;

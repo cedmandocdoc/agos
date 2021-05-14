@@ -35,10 +35,13 @@ class Chain extends Operator {
     };
 
     this.source(
-      open,
+      () => {
+        active++;
+        open();
+      },
       this.projects.length === 0 ? next : run(0),
       fail,
-      () => active <= 0 && done(cancelled),
+      () => --active <= 0 && done(cancelled),
       tap(payload => {
         if (payload === Stream.CANCEL) {
           cancelled = true;

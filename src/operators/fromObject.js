@@ -3,7 +3,7 @@ import empty from "./empty";
 import Stream from "../Stream";
 import { noop } from "../utils";
 
-const fromObject = object =>
+const fromObject = (object, withIndex) =>
   create((open, next, fail, done, talkback) => {
     let cancelled = false;
     talkback.listen(
@@ -24,7 +24,7 @@ const fromObject = object =>
       if (cancelled) break;
       const key = keys[index];
       const value = object[key];
-      next([value, key]);
+      next(withIndex ? [value, key] : value);
     }
     done(false);
   });

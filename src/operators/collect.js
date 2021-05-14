@@ -1,5 +1,5 @@
 import emitter from "./emitter";
-import never from "./never";
+import empty from "./empty";
 import { Operator, CancelInterceptor } from "../Stream";
 import { noop } from "../utils";
 
@@ -25,7 +25,7 @@ class Collect extends Operator {
         () => {
           if (active && ++cancelled >= this.pipes.length) cancel.run();
         },
-        never()
+        empty()
       );
     }
     this.source(

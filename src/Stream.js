@@ -67,7 +67,7 @@ export class CancelInterceptor extends Operator {
 
   listen(open, next, fail, done, talkback) {
     this.run = () => next(Stream.CANCEL);
-    this.source(open, next, fail, done, talkback);
+    super.listen(open, next, fail, done, talkback);
   }
 }
 
@@ -80,7 +80,7 @@ export class TalkbackCancelInterceptor extends Operator {
   listen(open, next, fail, done, talkback) {
     const cancel = CancelInterceptor.join(talkback);
     this.run = () => cancel.run();
-    this.source(open, next, fail, done, cancel);
+    super.listen(open, next, fail, done, cancel);
   }
 }
 

@@ -1,4 +1,4 @@
-const { create, never, Stream } = require("../dist/agos.cjs");
+const { create, empty, Stream } = require("../dist/agos.cjs");
 
 const noop = () => {};
 
@@ -24,7 +24,7 @@ const interval = (duration, take = Infinity) =>
       },
       noop,
       noop,
-      never
+      empty
     );
     open();
   });

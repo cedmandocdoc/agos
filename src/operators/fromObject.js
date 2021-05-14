@@ -1,5 +1,5 @@
 import create from "./create";
-import never from "./never";
+import empty from "./empty";
 import Stream from "../Stream";
 import { noop } from "../utils";
 
@@ -16,7 +16,7 @@ const fromObject = object =>
       },
       noop,
       noop,
-      never()
+      empty()
     );
     open();
     const keys = Object.keys(object);

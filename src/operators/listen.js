@@ -1,7 +1,7 @@
-import never from "./never";
+import empty from "./empty";
 import { noop } from "../utils";
 
-const listen = (sink, talkback = never()) => stream => {
+const listen = (sink, talkback = empty()) => stream => {
   if (typeof sink === "function")
     return stream.listen(noop, sink, noop, noop, talkback);
   return stream.listen(

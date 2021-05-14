@@ -1,5 +1,5 @@
 import create from "./create";
-import never from "./never";
+import empty from "./empty";
 import Stream from "../Stream";
 import { noop } from "../utils";
 
@@ -64,7 +64,7 @@ const emitter = ({ immediate = false } = {}) => {
       },
       noop,
       noop,
-      never()
+      empty()
     );
   });
 

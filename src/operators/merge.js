@@ -1,5 +1,5 @@
 import create from "./create";
-import never from "./never";
+import empty from "./empty";
 import Stream, { CancelInterceptor } from "../Stream";
 import { noop } from "../utils";
 
@@ -20,11 +20,11 @@ const merge = (streams, withIndex = false) =>
       },
       noop,
       noop,
-      never()
+      empty()
     );
     for (let index = 0; index < streams.length; index++) {
       const stream = streams[index];
-      const cancel = CancelInterceptor.join(never());
+      const cancel = CancelInterceptor.join(empty());
       cancels[index] = cancel;
       closed[index] = false;
       stream.listen(

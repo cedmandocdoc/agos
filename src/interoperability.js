@@ -1,5 +1,5 @@
 import { CancelInterceptor } from "./Stream";
-import never from "./operators/never";
+import empty from "./operators/empty";
 import { noop } from "./utils";
 
 export const observable = stream => {
@@ -14,7 +14,7 @@ export const observable = stream => {
         sink.complete = observer.complete;
       }
 
-      const cancel = CancelInterceptor.join(never());
+      const cancel = CancelInterceptor.join(empty());
 
       stream.listen(noop, sink.next, sink.error, sink.complete, cancel);
 

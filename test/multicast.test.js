@@ -3,7 +3,7 @@ const {
   pipe,
   listen,
   multicast,
-  never,
+  empty,
   CancelInterceptor
 } = require("../dist/agos.cjs");
 
@@ -106,7 +106,7 @@ describe("multicast", () => {
     const next2 = jest.fn(value => received2.push(value));
     const fail2 = jest.fn();
     const done2 = jest.fn(cancelled => expect(cancelled).toEqual(true));
-    const cancel = CancelInterceptor.join(never());
+    const cancel = CancelInterceptor.join(empty());
 
     pipe(
       source,

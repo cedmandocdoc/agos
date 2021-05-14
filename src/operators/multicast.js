@@ -1,5 +1,5 @@
 import create from "./create";
-import never from "./never";
+import empty from "./empty";
 import emitter from "./emitter";
 
 const multicast = (stream, options) => {
@@ -15,7 +15,7 @@ const multicast = (stream, options) => {
         controller.next,
         controller.fail,
         controller.done,
-        never()
+        empty()
       );
     }
   });

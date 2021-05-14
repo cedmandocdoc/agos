@@ -1,5 +1,5 @@
 const { noop } = require("./utils");
-const { pipe, listen, create, Stream, never } = require("../dist/agos.cjs");
+const { pipe, listen, create, Stream, empty } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
@@ -103,7 +103,7 @@ describe("create", () => {
       open();
       next(1);
       next(2);
-      talkback.listen(topen, tnext, tfail, tdone, never());
+      talkback.listen(topen, tnext, tfail, tdone, empty());
       // should not get called because
       // the talkback will emit a cancellation
       // token before reaching at this point
@@ -118,7 +118,7 @@ describe("create", () => {
 
     const talkback = create((open, next, fail, done, external) => {
       open();
-      external.listen(noop, () => done(true), noop, noop, never());
+      external.listen(noop, () => done(true), noop, noop, empty());
       next(Stream.CANCEL);
       // should not get called, since the source
       // has received a cancellation token it
@@ -155,7 +155,7 @@ describe("create", () => {
       open();
       next(1);
       next(2);
-      talkback.listen(topen, tnext, tfail, tdone, never());
+      talkback.listen(topen, tnext, tfail, tdone, empty());
       fail(new Error("error"));
       next(3);
       done(false); // after done, talkback should received a cancellation token
@@ -180,7 +180,7 @@ describe("create", () => {
         },
         noop,
         noop,
-        never()
+        empty()
       );
       next(1);
       next(2);

@@ -2,7 +2,7 @@ const {
   pipe,
   listen,
   of,
-  never,
+  empty,
   CancelInterceptor
 } = require("../dist/agos.cjs");
 
@@ -28,7 +28,7 @@ describe("of", () => {
 
   it("should propagate cancellation on open", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(never());
+    const cancel = CancelInterceptor.join(empty());
 
     const open = jest.fn(() => cancel.run());
     const next = jest.fn(value => received.push(value));
@@ -48,7 +48,7 @@ describe("of", () => {
 
   it("should not propagate cancellation before open", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(never());
+    const cancel = CancelInterceptor.join(empty());
 
     const open = jest.fn();
     const next = jest.fn(value => received.push(value));
@@ -70,7 +70,7 @@ describe("of", () => {
 
   it("should not propagate cancellation after open", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(never());
+    const cancel = CancelInterceptor.join(empty());
 
     const open = jest.fn();
     const next = jest.fn(value => received.push(value));

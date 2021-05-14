@@ -33,7 +33,7 @@ describe("Stream", () => {
 
     const next = jest.fn(value => received.push(value));
     const fail = jest.fn();
-    const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
     const observable = interval(100, 3)[$$observable]();
 

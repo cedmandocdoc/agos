@@ -2,7 +2,7 @@ const {
   pipe,
   listen,
   of,
-  never,
+  empty,
   CancelInterceptor
 } = require("../dist/agos.cjs");
 
@@ -61,7 +61,7 @@ describe("listen", () => {
 
   it("should accept a talkback - last parameter", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(never());
+    const cancel = CancelInterceptor.join(empty());
 
     const open = jest.fn(() => cancel.run());
     const next = jest.fn(value => received.push(value));

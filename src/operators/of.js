@@ -1,5 +1,5 @@
 import create from "./create";
-import never from "./never";
+import empty from "./empty";
 import Stream from "../Stream";
 import { noop } from "../utils";
 
@@ -10,7 +10,7 @@ const of = value =>
       payload => payload === Stream.CANCEL && done(true),
       noop,
       noop,
-      never()
+      empty()
     );
     open();
     next(value);

@@ -1,5 +1,5 @@
 import Stream, { CancelInterceptor, Operator } from "../Stream";
-import never from "./never";
+import empty from "./empty";
 import tap from "./tap";
 
 class Apply extends Operator {
@@ -35,7 +35,7 @@ class Apply extends Operator {
 
     const run = index => {
       const stream = this.fnstreams[index];
-      const cancel = CancelInterceptor.join(never());
+      const cancel = CancelInterceptor.join(empty());
       cancels.push(cancel);
 
       stream.listen(

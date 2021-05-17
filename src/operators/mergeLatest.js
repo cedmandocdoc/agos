@@ -9,7 +9,7 @@ const mergeLatest = streams => {
     merge(streams, true),
     scan(
       (values, [value, index]) => {
-        const copy = isArray ? [...values] : { ...values };
+        const copy = isArray ? [...values] : Object.assign(values, {});
         copy[index] = value;
         return copy;
       },

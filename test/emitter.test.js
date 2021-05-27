@@ -1,4 +1,10 @@
-const { pipe, listen, map, emitter, CancelInterceptor, empty } = require("../dist/agos.cjs");
+const {
+  pipe,
+  listen,
+  emitter,
+  CancelInterceptor,
+  empty
+} = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 
@@ -113,7 +119,7 @@ describe("map", () => {
     const received2 = [];
 
     const [control, subject] = emitter();
-    const cancel = CancelInterceptor.join(empty())
+    const cancel = CancelInterceptor.join(empty());
 
     const open1 = jest.fn();
     const next1 = jest.fn(value => received1.push(value));

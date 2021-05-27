@@ -73,6 +73,29 @@ describe("slice", () => {
     expect(received).toEqual([1, 2, 3, 4]);
   });
 
+  it("should not propagate values: zero end acts as take zero", () => {
+    const received = [];
+
+    const open = jest.fn();
+    const next = jest.fn(value => received.push(value));
+    const fail = jest.fn();
+    const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
+
+    pipe(
+      interval(100, 10),
+      slice(0, 0),
+      listen({ open, next, fail, done })
+    );
+
+    jest.advanceTimersByTime(1000);
+
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(0);
+    expect(fail).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(1);
+    expect(received).toEqual([]);
+  });
+
   it("should propagate selected values: negative start acts as take from end", () => {
     const received = [];
 

@@ -44,13 +44,14 @@ class Slice extends Operator {
         open,
         value => {
           count++;
-          count > this.start && next(value);
-          count >= this.end && cancel.run();
+          if (count > this.start && count <= this.end) next(value);
+          if (count >= this.end) cancel.run();
         },
         fail,
         done,
         cancel
       );
+      if (this.start === 0 && this.end === 0) cancel.run();
     }
   }
 }

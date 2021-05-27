@@ -7,7 +7,6 @@ const multicast = (stream, options) => {
   const [controller, subject] = emitter(options);
 
   return create((open, next, fail, done, talkback) => {
-    subject.listen(open, next, fail, done, talkback);
     if (!active) {
       active = true;
       stream.listen(
@@ -18,6 +17,8 @@ const multicast = (stream, options) => {
         empty()
       );
     }
+
+    subject.listen(open, next, fail, done, talkback);
   });
 };
 

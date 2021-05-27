@@ -10,6 +10,7 @@ const DONE = 2;
 const emitter = ({ immediate = false } = {}) => {
   let state = IDLE;
   let last = null;
+  let set = false;
   const opens = new Set();
   const nexts = new Set();
   const fails = new Set();
@@ -25,6 +26,7 @@ const emitter = ({ immediate = false } = {}) => {
 
   const next = value => {
     last = value;
+    if (!set) set = true;
     if (state === ACTIVE) for (const next of nexts.values()) next(value);
   };
 
@@ -46,7 +48,7 @@ const emitter = ({ immediate = false } = {}) => {
     if (state === IDLE) opens.add(open);
     else if (state === ACTIVE) {
       open();
-      if (immediate) next(last);
+      if (immediate && set) next(last);
     }
 
     nexts.add(next);

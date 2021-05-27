@@ -101,4 +101,34 @@ export class TalkbackCancelInterceptor extends Operator {
   }
 }
 
+// intercepts the source propagation through control of emitter
+export class ControlInterceptor extends Operator {
+  constructor(source, control) {
+    super(source);
+    this.control = control;
+  }
+
+  listen(open, next, fail, done, talkback) {
+    super.listen(
+      () => {
+        open();
+        this.control.open();
+      },
+      data => {
+        next(data);
+        this.control.next(data);
+      },
+      error => {
+        fail(error);
+        this.control.fail(error);
+      },
+      cancelled => {
+        done(cancelled);
+        this.control.done(cancelled);
+      },
+      talkback
+    );
+  }
+}
+
 export default Stream;

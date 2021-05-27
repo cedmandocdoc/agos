@@ -72,14 +72,3 @@ describe("concat", () => {
     expect(done).toHaveBeenCalledTimes(1);
   });
 });
-
-// pipe(
-//   interval(100, 3),
-//   concat(interval(200, 2)),
-//   listen(
-//     () => console.log('open'),
-//     d => console.log(d, 'data'),
-//     e => console.log(e, 'error'),
-//     c => console.log(c)
-//   )
-// );

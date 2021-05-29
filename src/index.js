@@ -22,6 +22,7 @@ import mergeLatest from "./operators/mergeLatest";
 import multicast from "./operators/multicast";
 import never from "./operators/never";
 import of from "./operators/of";
+import pairwise from "./operators/pairwise";
 import reject from "./operators/reject";
 import scan from "./operators/scan";
 import skip from "./operators/skip";
@@ -57,6 +58,7 @@ export {
   multicast,
   never,
   of,
+  pairwise,
   reject,
   scan,
   skip,

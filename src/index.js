@@ -5,8 +5,6 @@ import Stream, {
 } from "./Stream";
 import ap from "./operators/ap";
 import chain from "./operators/chain";
-import collect from "./operators/collect";
-import collectLatest from "./operators/collectLatest";
 import concat from "./operators/concat";
 import create from "./operators/create";
 import emitter from "./operators/emitter";
@@ -42,8 +40,6 @@ export {
   TalkbackCancelInterceptor,
   ap,
   chain,
-  collect,
-  collectLatest,
   concat,
   create,
   emitter,

@@ -1,4 +1,10 @@
-const { pipe, listen, fromPromise, CancelInterceptor, empty } = require("../dist/agos.cjs");
+const {
+  pipe,
+  listen,
+  fromPromise,
+  CancelInterceptor,
+  empty
+} = require("../dist/agos.cjs");
 
 describe("fromPromise", () => {
   it("should propagate the promise resolved value", complete => {
@@ -13,10 +19,10 @@ describe("fromPromise", () => {
       expect(open).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(1);
       expect(fail).toHaveBeenCalledTimes(0);
-      expect(cancelled).toEqual(false)
+      expect(cancelled).toEqual(false);
       expect(received).toEqual([1]);
       complete();
-    }
+    };
 
     pipe(
       fromPromise(promise),
@@ -36,9 +42,9 @@ describe("fromPromise", () => {
       expect(open).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
       expect(fail).toHaveBeenCalledTimes(1);
-      expect(cancelled).toEqual(false)
+      expect(cancelled).toEqual(false);
       complete();
-    }
+    };
 
     pipe(
       fromPromise(promise),
@@ -59,10 +65,10 @@ describe("fromPromise", () => {
       expect(open).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(0);
       expect(fail).toHaveBeenCalledTimes(0);
-      expect(cancelled).toEqual(true)
+      expect(cancelled).toEqual(true);
       expect(received).toEqual([]);
       complete();
-    }
+    };
 
     pipe(
       fromPromise(promise),

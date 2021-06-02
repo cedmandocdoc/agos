@@ -8,7 +8,7 @@ const mergeLatest = streams =>
   pipe(
     merge(streams, true),
     scan((values, [value, index]) => {
-      const result = { ...values };
+      const result = Object.assign({}, values);
       result[index] = value;
       return result;
     }, {}),

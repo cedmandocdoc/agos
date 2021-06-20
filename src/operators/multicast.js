@@ -2,14 +2,21 @@ import create from "./create";
 import emitter from "./emitter";
 import { ControlInterceptor } from "../Stream";
 
-const multicast = (stream, options) => {
+const multicast = (stream, { immediate = false } = {}) => {
   let subject = null;
   let controller = null;
   const interceptor = emitter({ immediate: false });
 
   return create((open, next, fail, done, talkback) => {
     if (!subject) {
-      [controller, subject] = emitter(options);
+      [controller, subject] = emitter({ immediate });
+      subject.listen(
+        open,
+        next,
+        fail,
+        done,
+        ControlInterceptor.join(talkback, interceptor[0])
+      );
       stream.listen(
         controller.open,
         controller.next,
@@ -21,14 +28,14 @@ const multicast = (stream, options) => {
         },
         interceptor[1]
       );
-    }
-    subject.listen(
-      open,
-      next,
-      fail,
-      done,
-      ControlInterceptor.join(talkback, interceptor[0])
-    );
+    } else
+      subject.listen(
+        open,
+        next,
+        fail,
+        done,
+        ControlInterceptor.join(talkback, interceptor[0])
+      );
   });
 };
 

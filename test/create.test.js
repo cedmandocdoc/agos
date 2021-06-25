@@ -1,5 +1,5 @@
 const { noop } = require("./utils");
-const { pipe, listen, create, Stream, empty } = require("../dist/agos.cjs");
+const { pipe, listen, create, Stream } = require("../dist/agos.cjs");
 
 jest.useFakeTimers();
 

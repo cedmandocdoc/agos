@@ -1,10 +1,4 @@
-const {
-  pipe,
-  listen,
-  of,
-  empty,
-  CancelInterceptor
-} = require("../dist/agos.cjs");
+const { pipe, listen, of, CancelSignal } = require("../dist/agos.cjs");
 
 describe("listen", () => {
   it("should accept single function and work as next", () => {
@@ -61,7 +55,7 @@ describe("listen", () => {
 
   it("should accept a talkback - last parameter", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn(() => cancel.run());
     const next = jest.fn(value => received.push(value));

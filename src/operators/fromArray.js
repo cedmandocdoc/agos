@@ -1,23 +1,22 @@
-import create from "./create";
-import empty from "./empty";
 import Stream from "../Stream";
-import { noop } from "../utils";
+import create from "./create";
+import filter from "./filter";
+import listen from "./listen";
+import { pipe } from "../utils";
 
 const fromArray = (array, withIndex) =>
   create((open, next, fail, done, talkback) => {
     let cancelled = false;
-    talkback.listen(
-      noop,
-      payload => {
-        if (payload === Stream.CANCEL) {
-          cancelled = true;
-          done(true);
-        }
-      },
-      noop,
-      noop,
-      empty()
+
+    pipe(
+      talkback,
+      filter(data => data === Stream.CANCEL),
+      listen(() => {
+        cancelled = true;
+        done(true);
+      })
     );
+
     open();
 
     for (let index = 0; index < array.length; index++) {

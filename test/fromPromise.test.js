@@ -1,10 +1,4 @@
-const {
-  pipe,
-  listen,
-  fromPromise,
-  CancelInterceptor,
-  empty
-} = require("../dist/agos.cjs");
+const { pipe, listen, fromPromise, CancelSignal } = require("../dist/agos.cjs");
 
 describe("fromPromise", () => {
   it("should propagate the promise resolved value", complete => {
@@ -55,7 +49,7 @@ describe("fromPromise", () => {
   it("should propagate the promise cancellation", complete => {
     const received = [];
     const promise = Promise.resolve(1);
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn();
     const next = jest.fn(value => received.push(value));

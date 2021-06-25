@@ -1,5 +1,7 @@
 import Stream, {
   Operator,
+  OpenStream,
+  CancelSignal,
   CancelInterceptor,
   TalkbackCancelInterceptor
 } from "./Stream";
@@ -37,6 +39,8 @@ import throttle from "./operators/throttle";
 export {
   Stream,
   Operator,
+  OpenStream,
+  CancelSignal,
   CancelInterceptor,
   TalkbackCancelInterceptor,
   ap,

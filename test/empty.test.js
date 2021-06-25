@@ -15,6 +15,6 @@ describe("empty", () => {
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);
     expect(fail).toHaveBeenCalledTimes(0);
-    expect(done).toHaveBeenCalledTimes(0);
+    expect(done).toHaveBeenCalledTimes(1);
   });
 });

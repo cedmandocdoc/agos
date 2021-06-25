@@ -1,6 +1,5 @@
-import Stream, { Operator, CancelInterceptor } from "../Stream";
+import Stream, { Operator, CancelSignal } from "../Stream";
 import tap from "./tap";
-import empty from "./empty";
 
 class SwitchMap extends Operator {
   constructor(source, projects) {
@@ -21,7 +20,7 @@ class SwitchMap extends Operator {
     let active = 0;
 
     const run = index => value => {
-      cancels[index] = cancels[index] || CancelInterceptor.join(empty());
+      cancels[index] = cancels[index] || new CancelSignal();
       const cancel = cancels[index];
       cancel.run();
       const project = this.projects[index];

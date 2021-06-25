@@ -1,6 +1,5 @@
-import Stream, { Operator, CancelInterceptor } from "../Stream";
+import Stream, { Operator, CancelSignal } from "../Stream";
 import tap from "./tap";
-import empty from "./empty";
 
 class Chain extends Operator {
   constructor(source, projects) {
@@ -22,7 +21,7 @@ class Chain extends Operator {
     const run = index => value => {
       const project = this.projects[index];
       const stream = project(value);
-      const cancel = CancelInterceptor.join(empty());
+      const cancel = new CancelSignal();
       cancels.push(cancel);
 
       stream.listen(

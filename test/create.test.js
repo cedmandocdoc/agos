@@ -103,7 +103,7 @@ describe("create", () => {
       open();
       next(1);
       next(2);
-      talkback.listen(topen, tnext, tfail, tdone, empty());
+      talkback.listen(topen, tnext, tfail, tdone, create(open => open()));
       // should not get called because
       // the talkback will emit a cancellation
       // token before reaching at this point
@@ -118,7 +118,13 @@ describe("create", () => {
 
     const talkback = create((open, next, fail, done, external) => {
       open();
-      external.listen(noop, () => done(true), noop, noop, empty());
+      external.listen(
+        noop,
+        () => done(true),
+        noop,
+        noop,
+        create(open => open())
+      );
       next(Stream.CANCEL);
       // should not get called, since the source
       // has received a cancellation token it
@@ -155,7 +161,7 @@ describe("create", () => {
       open();
       next(1);
       next(2);
-      talkback.listen(topen, tnext, tfail, tdone, empty());
+      talkback.listen(topen, tnext, tfail, tdone, create(open => open()));
       fail(new Error("error"));
       next(3);
       done(false); // after done, talkback should received a cancellation token
@@ -180,7 +186,7 @@ describe("create", () => {
         },
         noop,
         noop,
-        empty()
+        create(open => open())
       );
       next(1);
       next(2);

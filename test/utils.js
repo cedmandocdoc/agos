@@ -1,4 +1,4 @@
-const { create, empty, Stream } = require("../dist/agos.cjs");
+const { create, Stream, pipe, filter, listen } = require("../dist/agos.cjs");
 
 const noop = () => {};
 
@@ -13,19 +13,16 @@ const interval = (duration, take = Infinity, cancel = noop) =>
       }
     }, duration);
 
-    talkback.listen(
-      noop,
-      payload => {
-        if (payload === Stream.CANCEL) {
-          clearInterval(id);
-          done(true);
-          cancel();
-        }
-      },
-      noop,
-      noop,
-      empty()
+    pipe(
+      talkback,
+      filter(data => data === Stream.CANCEL),
+      listen(() => {
+        clearInterval(id);
+        done(true);
+        cancel();
+      })
     );
+
     open();
   });
 

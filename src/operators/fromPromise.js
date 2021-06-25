@@ -1,7 +1,8 @@
-import create from "./create";
-import empty from "./empty";
 import Stream from "../Stream";
-import { noop } from "../utils";
+import create from "./create";
+import filter from "./filter";
+import listen from "./listen";
+import { pipe } from "../utils";
 
 const fromPromise = promise =>
   create((open, next, fail, done, talkback) => {
@@ -10,12 +11,11 @@ const fromPromise = promise =>
       .then(value => next(value))
       .catch(error => fail(error))
       .finally(() => done(false));
-    talkback.listen(
-      noop,
-      payload => payload === Stream.CANCEL && done(true),
-      noop,
-      noop,
-      empty()
+
+    pipe(
+      talkback,
+      filter(data => data === Stream.CANCEL),
+      listen(() => done(true))
     );
   });
 

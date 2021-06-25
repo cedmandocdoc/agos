@@ -1,10 +1,4 @@
-const {
-  pipe,
-  listen,
-  reject,
-  empty,
-  CancelInterceptor
-} = require("../dist/agos.cjs");
+const { pipe, listen, reject, CancelSignal } = require("../dist/agos.cjs");
 
 describe("reject", () => {
   it("should propagate error", () => {
@@ -28,7 +22,7 @@ describe("reject", () => {
 
   it("should propagate cancellation on open", () => {
     const error = new Error();
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn(() => cancel.run());
     const next = jest.fn();
@@ -48,7 +42,7 @@ describe("reject", () => {
 
   it("should not propagate cancellation before open", () => {
     const error = new Error();
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn();
     const next = jest.fn();
@@ -70,7 +64,7 @@ describe("reject", () => {
 
   it("should not propagate cancellation after open", () => {
     const error = new Error();
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn();
     const next = jest.fn();

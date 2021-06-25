@@ -3,8 +3,7 @@ const {
   pipe,
   listen,
   multicast,
-  empty,
-  CancelInterceptor,
+  CancelSignal,
   fromArray
 } = require("../dist/agos.cjs");
 
@@ -147,7 +146,7 @@ describe("multicast", () => {
     const next2 = jest.fn(value => received2.push(value));
     const fail2 = jest.fn();
     const done2 = jest.fn(cancelled => expect(cancelled).toEqual(true));
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     pipe(
       source,
@@ -180,7 +179,7 @@ describe("multicast", () => {
     const received1 = [];
     const received2 = [];
     const source = multicast(interval(100, 3));
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open1 = jest.fn();
     const next1 = jest.fn(value => received1.push(value));

@@ -1,10 +1,4 @@
-const {
-  pipe,
-  listen,
-  fromArray,
-  empty,
-  CancelInterceptor
-} = require("../dist/agos.cjs");
+const { pipe, listen, fromArray, CancelSignal } = require("../dist/agos.cjs");
 
 describe("fromArray", () => {
   it("should propagate each value of array", () => {
@@ -49,7 +43,7 @@ describe("fromArray", () => {
 
   it("should propagate cancellation on open", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn(() => cancel.run());
     const next = jest.fn(value => received.push(value));
@@ -70,7 +64,7 @@ describe("fromArray", () => {
 
   it("should propagate cancellation on next", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn();
     const next = jest.fn(value => {
@@ -94,7 +88,7 @@ describe("fromArray", () => {
 
   it("should not propagate cancellation on both before open and next", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn();
     const next = jest.fn(value => received.push(value));
@@ -117,7 +111,7 @@ describe("fromArray", () => {
 
   it("should not propagate cancellation on both after open and next", () => {
     const received = [];
-    const cancel = CancelInterceptor.join(empty());
+    const cancel = new CancelSignal();
 
     const open = jest.fn();
     const next = jest.fn(value => received.push(value));

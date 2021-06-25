@@ -1,16 +1,15 @@
-import create from "./create";
-import empty from "./empty";
 import Stream from "../Stream";
-import { noop } from "../utils";
+import create from "./create";
+import filter from "./filter";
+import listen from "./listen";
+import { pipe } from "../utils";
 
 const fail = error =>
   create((open, next, fail, done, talkback) => {
-    talkback.listen(
-      noop,
-      payload => payload === Stream.CANCEL && done(true),
-      noop,
-      noop,
-      empty()
+    pipe(
+      talkback,
+      filter(data => data === Stream.CANCEL),
+      listen(() => done(true))
     );
     open();
     fail(error);

@@ -1,7 +1,8 @@
-import create from "./create";
-import empty from "./empty";
 import Stream from "../Stream";
-import { noop } from "../utils";
+import create from "./create";
+import filter from "./filter";
+import listen from "./listen";
+import { pipe } from "../utils";
 
 const IDLE = 0;
 const ACTIVE = 1;
@@ -54,19 +55,16 @@ const emitter = ({ immediate = false } = {}) => {
     nexts.add(next);
     fails.add(fail);
     dones.add(done);
-    talkback.listen(
-      noop,
-      payload => {
-        if (payload === Stream.CANCEL) {
-          nexts.delete(next);
-          fails.delete(fail);
-          dones.delete(done);
-          done(true);
-        }
-      },
-      noop,
-      noop,
-      empty()
+
+    pipe(
+      talkback,
+      filter(data => data === Stream.CANCEL),
+      listen(() => {
+        nexts.delete(next);
+        fails.delete(fail);
+        dones.delete(done);
+        done(true);
+      })
     );
   });
 

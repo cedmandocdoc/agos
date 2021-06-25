@@ -23,7 +23,7 @@ class Stream {
           sink.complete = observer.complete;
         }
 
-        const cancel = CancelInterceptor.join(new Stream(open => open()));
+        const cancel = new CancelSignal();
 
         this.listen(noop, sink.next, sink.error, sink.complete, cancel);
 
@@ -73,6 +73,24 @@ export class Operator extends Stream {
     return new this((open, next, fail, done, talkback) => {
       stream.listen(open, next, fail, done, talkback);
     }, ...args);
+  }
+}
+
+export class OpenStream extends Stream {
+  constructor() {
+    super(open => open());
+  }
+}
+
+export class CancelSignal extends OpenStream {
+  constructor() {
+    super();
+    this.run = noop;
+  }
+
+  listen(open, next, fail, done, talkback) {
+    this.run = () => next(Stream.CANCEL);
+    this.source(open, next, fail, done, talkback);
   }
 }
 

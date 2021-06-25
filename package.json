@@ -1,6 +1,6 @@
 {
   "name": "agos",
-  "version": "0.10.3",
+  "version": "0.11.0",
   "description": "JavaScript utility for data flow composition",
   "homepage": "https://github.com/cedmandocdoc/agos",
   "main": "dist/agos.cjs.js",

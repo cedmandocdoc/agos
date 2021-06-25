@@ -18,10 +18,7 @@ describe("fromPromise", () => {
       complete();
     };
 
-    pipe(
-      fromPromise(promise),
-      listen({ open, next, fail, done })
-    );
+    pipe(fromPromise(promise), listen({ open, next, fail, done }));
   });
 
   it("should propagate the promise reject error", complete => {
@@ -40,10 +37,7 @@ describe("fromPromise", () => {
       complete();
     };
 
-    pipe(
-      fromPromise(promise),
-      listen({ open, next, fail, done })
-    );
+    pipe(fromPromise(promise), listen({ open, next, fail, done }));
   });
 
   it("should propagate the promise cancellation", complete => {
@@ -64,10 +58,7 @@ describe("fromPromise", () => {
       complete();
     };
 
-    pipe(
-      fromPromise(promise),
-      listen({ open, next, fail, done }, cancel)
-    );
+    pipe(fromPromise(promise), listen({ open, next, fail, done }, cancel));
 
     cancel.run(); // immediately cancel
   });

@@ -17,10 +17,7 @@ describe("create", () => {
     const fail = jest.fn();
     const done = jest.fn();
 
-    pipe(
-      source,
-      listen({ open, next, fail, done })
-    );
+    pipe(source, listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(0);
     expect(next).toHaveBeenCalledTimes(0);
@@ -42,10 +39,7 @@ describe("create", () => {
     const fail = jest.fn(error => expect(error instanceof Error).toEqual(true));
     const done = jest.fn();
 
-    pipe(
-      source,
-      listen({ open, next, fail, done })
-    );
+    pipe(source, listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
@@ -74,10 +68,7 @@ describe("create", () => {
     const fail = jest.fn(error => expect(error.message).toEqual("error"));
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      source,
-      listen({ open, next, fail, done })
-    );
+    pipe(source, listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 
@@ -103,7 +94,13 @@ describe("create", () => {
       open();
       next(1);
       next(2);
-      talkback.listen(topen, tnext, tfail, tdone, create(open => open()));
+      talkback.listen(
+        topen,
+        tnext,
+        tfail,
+        tdone,
+        create(open => open())
+      );
       // should not get called because
       // the talkback will emit a cancellation
       // token before reaching at this point
@@ -138,10 +135,7 @@ describe("create", () => {
     const fail = jest.fn(error => expect(error.message).toEqual("error"));
     const done = jest.fn(cancelled => expect(cancelled));
 
-    pipe(
-      source,
-      listen({ open, next, fail, done }, talkback)
-    );
+    pipe(source, listen({ open, next, fail, done }, talkback));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
@@ -161,7 +155,13 @@ describe("create", () => {
       open();
       next(1);
       next(2);
-      talkback.listen(topen, tnext, tfail, tdone, create(open => open()));
+      talkback.listen(
+        topen,
+        tnext,
+        tfail,
+        tdone,
+        create(open => open())
+      );
       fail(new Error("error"));
       next(3);
       done(false); // after done, talkback should received a cancellation token
@@ -198,10 +198,7 @@ describe("create", () => {
     const fail = jest.fn(error => expect(error.message).toEqual("error"));
     const done = jest.fn(cancelled => expect(cancelled));
 
-    pipe(
-      source,
-      listen({ open, next, fail, done }, talkback)
-    );
+    pipe(source, listen({ open, next, fail, done }, talkback));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);

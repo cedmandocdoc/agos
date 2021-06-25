@@ -12,11 +12,7 @@ describe("slice", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
-    pipe(
-      interval(100, 10),
-      slice(4, 8),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 10), slice(4, 8), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 
@@ -35,11 +31,7 @@ describe("slice", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      interval(100, 10),
-      slice(4),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 10), slice(4), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 
@@ -58,11 +50,7 @@ describe("slice", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
-    pipe(
-      interval(100, 10),
-      slice(0, 4),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 10), slice(0, 4), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 
@@ -81,11 +69,7 @@ describe("slice", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
-    pipe(
-      interval(100, 10),
-      slice(0, 0),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 10), slice(0, 0), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 
@@ -104,11 +88,7 @@ describe("slice", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      interval(100, 10),
-      slice(-4),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 10), slice(-4), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 
@@ -127,11 +107,7 @@ describe("slice", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      interval(100, 10),
-      slice(0, -4),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 10), slice(0, -4), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 
@@ -150,11 +126,7 @@ describe("slice", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      interval(100, 10),
-      slice(-7, -5),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 10), slice(-7, -5), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(1000);
 

@@ -9,10 +9,7 @@ describe("fromObject", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      fromObject({ 1: 1, 2: 2, 3: 3 }),
-      listen({ open, next, fail, done })
-    );
+    pipe(fromObject({ 1: 1, 2: 2, 3: 3 }), listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
@@ -38,7 +35,11 @@ describe("fromObject", () => {
     expect(next).toHaveBeenCalledTimes(3);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([[1, "1"], [2, "2"], [3, "3"]]);
+    expect(received).toEqual([
+      [1, "1"],
+      [2, "2"],
+      [3, "3"]
+    ]);
   });
 
   it("should propagate cancellation on open", () => {

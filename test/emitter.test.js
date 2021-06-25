@@ -16,10 +16,7 @@ describe("map", () => {
     control.open();
     control.next(1); // should not be propagated
 
-    pipe(
-      subject,
-      listen({ open, next, fail, done })
-    );
+    pipe(subject, listen({ open, next, fail, done }));
 
     control.next(2);
     control.next(3);
@@ -45,10 +42,7 @@ describe("map", () => {
     control.open();
     control.next(1); // should propagate
 
-    pipe(
-      subject,
-      listen({ open, next, fail, done })
-    );
+    pipe(subject, listen({ open, next, fail, done }));
 
     control.next(2);
     control.next(3);

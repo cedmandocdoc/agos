@@ -26,7 +26,13 @@ describe("merge", () => {
   });
 
   it("should propagate all values from sources with index", () => {
-    const expected = [[1, 0], [2, 0], [1, 1], [3, 0], [2, 1]];
+    const expected = [
+      [1, 0],
+      [2, 0],
+      [1, 1],
+      [3, 0],
+      [2, 1]
+    ];
 
     const open = jest.fn();
     const next = jest.fn(value => expect(value).toEqual(expected.shift()));
@@ -54,10 +60,7 @@ describe("merge", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      merge([interval(100, 3), of(1)]),
-      listen({ open, next, fail, done })
-    );
+    pipe(merge([interval(100, 3), of(1)]), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(300);
 
@@ -75,10 +78,7 @@ describe("merge", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      merge([of(1), of(2)]),
-      listen({ open, next, fail, done })
-    );
+    pipe(merge([of(1), of(2)]), listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);

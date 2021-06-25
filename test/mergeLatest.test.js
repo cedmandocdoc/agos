@@ -5,7 +5,11 @@ jest.useFakeTimers();
 
 describe("mergeLatest", () => {
   it("should propagate all latest values from sources", () => {
-    const expected = [[2, 1], [3, 1], [3, 2]];
+    const expected = [
+      [2, 1],
+      [3, 1],
+      [3, 2]
+    ];
 
     const open = jest.fn();
     const next = jest.fn(value => expect(value).toEqual(expected.shift()));
@@ -26,7 +30,10 @@ describe("mergeLatest", () => {
   });
 
   it("should propagate error when any source propagates an error", () => {
-    const expected = [[2, 1], [3, 1]];
+    const expected = [
+      [2, 1],
+      [3, 1]
+    ];
     const error = new Error();
 
     const open = jest.fn();
@@ -52,7 +59,11 @@ describe("mergeLatest", () => {
   });
 
   it("should propagate all latest values from sources, one sync and one async", () => {
-    const expected = [[1, 1], [2, 1], [3, 1]];
+    const expected = [
+      [1, 1],
+      [2, 1],
+      [3, 1]
+    ];
 
     const open = jest.fn();
     const next = jest.fn(value => expect(value).toEqual(expected.shift()));

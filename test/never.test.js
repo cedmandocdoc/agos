@@ -7,10 +7,7 @@ describe("never", () => {
     const fail = jest.fn();
     const done = jest.fn();
 
-    pipe(
-      never(),
-      listen({ open, next, fail, done })
-    );
+    pipe(never(), listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(0);
     expect(next).toHaveBeenCalledTimes(0);

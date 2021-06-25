@@ -13,11 +13,7 @@ describe("map", () => {
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
     const project = jest.fn(value => value.toString());
 
-    pipe(
-      interval(100, 3),
-      map(project),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 3), map(project), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(300);
 
@@ -42,11 +38,7 @@ describe("map", () => {
       return value.toString();
     });
 
-    pipe(
-      interval(100, 3),
-      map(project),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 3), map(project), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(300);
 

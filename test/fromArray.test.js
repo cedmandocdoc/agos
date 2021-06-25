@@ -9,10 +9,7 @@ describe("fromArray", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      fromArray([1, 2, 3]),
-      listen({ open, next, fail, done })
-    );
+    pipe(fromArray([1, 2, 3]), listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
@@ -29,16 +26,17 @@ describe("fromArray", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      fromArray([1, 2, 3], true),
-      listen({ open, next, fail, done })
-    );
+    pipe(fromArray([1, 2, 3], true), listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([[1, 0], [2, 1], [3, 2]]);
+    expect(received).toEqual([
+      [1, 0],
+      [2, 1],
+      [3, 2]
+    ]);
   });
 
   it("should propagate cancellation on open", () => {
@@ -50,10 +48,7 @@ describe("fromArray", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
-    pipe(
-      fromArray([1, 2, 3]),
-      listen({ open, next, fail, done }, cancel)
-    );
+    pipe(fromArray([1, 2, 3]), listen({ open, next, fail, done }, cancel));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);
@@ -74,10 +69,7 @@ describe("fromArray", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
-    pipe(
-      fromArray([1, 2, 3]),
-      listen({ open, next, fail, done }, cancel)
-    );
+    pipe(fromArray([1, 2, 3]), listen({ open, next, fail, done }, cancel));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
@@ -97,10 +89,7 @@ describe("fromArray", () => {
 
     cancel.run();
 
-    pipe(
-      fromArray([1, 2, 3]),
-      listen({ open, next, fail, done }, cancel)
-    );
+    pipe(fromArray([1, 2, 3]), listen({ open, next, fail, done }, cancel));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(3);
@@ -118,10 +107,7 @@ describe("fromArray", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      fromArray([1, 2, 3]),
-      listen({ open, next, fail, done }, cancel)
-    );
+    pipe(fromArray([1, 2, 3]), listen({ open, next, fail, done }, cancel));
 
     cancel.run();
 

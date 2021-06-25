@@ -12,11 +12,7 @@ describe("pairwise", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      interval(100, 3),
-      pairwise(),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 3), pairwise(), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(300);
 
@@ -24,7 +20,10 @@ describe("pairwise", () => {
     expect(next).toHaveBeenCalledTimes(2);
     expect(fail).toHaveBeenCalledTimes(0);
     expect(done).toHaveBeenCalledTimes(1);
-    expect(received).toEqual([[1, 2], [2, 3]]);
+    expect(received).toEqual([
+      [1, 2],
+      [2, 3]
+    ]);
   });
 
   it("should propagate previous and current value of emitter stream", () => {
@@ -39,11 +38,7 @@ describe("pairwise", () => {
     control.open();
     control.next(1);
 
-    pipe(
-      subject,
-      pairwise(),
-      listen({ open, next, fail, done })
-    );
+    pipe(subject, pairwise(), listen({ open, next, fail, done }));
 
     control.next(2);
     control.done(false);

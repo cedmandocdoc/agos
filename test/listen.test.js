@@ -6,10 +6,7 @@ describe("listen", () => {
 
     const next = jest.fn(value => received.push(value));
 
-    pipe(
-      of(1),
-      listen(next)
-    );
+    pipe(of(1), listen(next));
 
     expect(next).toHaveBeenCalledTimes(1);
     expect(received).toEqual([1]);
@@ -23,10 +20,7 @@ describe("listen", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      of(1),
-      listen({ open, next, fail, done })
-    );
+    pipe(of(1), listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(1);
@@ -42,10 +36,7 @@ describe("listen", () => {
     const next = jest.fn(value => received.push(value));
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      of(1),
-      listen({ open, next, done })
-    );
+    pipe(of(1), listen({ open, next, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(1);
@@ -62,10 +53,7 @@ describe("listen", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(true));
 
-    pipe(
-      of(1),
-      listen({ open, next, fail, done }, cancel)
-    );
+    pipe(of(1), listen({ open, next, fail, done }, cancel));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);

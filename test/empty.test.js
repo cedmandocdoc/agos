@@ -7,10 +7,7 @@ describe("empty", () => {
     const fail = jest.fn();
     const done = jest.fn(cancelled => expect(cancelled).toEqual(false));
 
-    pipe(
-      empty(),
-      listen({ open, next, fail, done })
-    );
+    pipe(empty(), listen({ open, next, fail, done }));
 
     expect(open).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(0);

@@ -16,11 +16,7 @@ describe("throttle", () => {
       setTimeout(release, 200);
     });
 
-    pipe(
-      interval(100, 3),
-      throttle(tick),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 3), throttle(tick), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(400);
 
@@ -45,11 +41,7 @@ describe("throttle", () => {
       throw error;
     });
 
-    pipe(
-      interval(100, 3),
-      throttle(tick),
-      listen({ open, next, fail, done })
-    );
+    pipe(interval(100, 3), throttle(tick), listen({ open, next, fail, done }));
 
     jest.advanceTimersByTime(300);
 

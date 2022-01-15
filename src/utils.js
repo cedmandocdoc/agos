@@ -5,3 +5,6 @@ export const pipe = (...cbs) => {
   for (let i = 1, n = cbs.length; i < n; i++) res = cbs[i](res);
   return res;
 };
+
+export const createSymbol = name =>
+  typeof Symbol === "function" ? Symbol(name) : `@@agos.${name}`;

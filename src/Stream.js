@@ -1,5 +1,5 @@
 import $$observable from "symbol-observable";
-import { noop } from "./utils";
+import { createSymbol, noop } from "./utils";
 
 const IDLE = 0;
 const ACTIVE = 1;
@@ -12,24 +12,24 @@ class Stream {
 
   // observable interoperability
   [$$observable]() {
-    return {
-      subscribe: observer => {
-        const sink = { next: noop, error: noop, complete: noop };
+    return this;
+  }
 
-        if (typeof observer === "function") sink.next = observer;
-        else {
-          sink.next = observer.next;
-          sink.error = observer.error;
-          sink.complete = observer.complete;
-        }
+  subscribe(observer) {
+    const sink = { next: noop, error: noop, complete: noop };
 
-        const cancel = new CancelSignal();
+    if (typeof observer === "function") sink.next = observer;
+    else {
+      sink.next = observer.next;
+      sink.error = observer.error;
+      sink.complete = observer.complete;
+    }
 
-        this.listen(noop, sink.next, sink.error, sink.complete, cancel);
+    const cancel = new CancelSignal();
 
-        return { unsubscribe: () => cancel.run() };
-      }
-    };
+    this.listen(noop, sink.next, sink.error, sink.complete, cancel);
+
+    return { unsubscribe: () => cancel.run() };
   }
 
   listen(open, next, fail, done, talkback) {
@@ -66,7 +66,7 @@ class Stream {
   }
 }
 
-Stream.CANCEL = Symbol("cancel");
+Stream.CANCEL = createSymbol("cancel");
 
 export class Operator extends Stream {
   static join(stream, ...args) {
